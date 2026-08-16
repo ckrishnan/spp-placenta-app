@@ -27,7 +27,7 @@ export function ReferencesModal() {
             Key literature and data sources used in this tool.
           </DialogDescription>
         </DialogHeader>
-        <div className="grid gap-6 py-4 text-sm text-foreground/90">
+        <div className="grid gap-6 py-4 text-sm text-foreground/90 max-h-[70vh] overflow-y-auto pr-2">
           <div className="space-y-2">
             <h3 className="font-bold">Placental Weight Percentiles</h3>
             <p className="text-xs">
@@ -43,10 +43,37 @@ export function ReferencesModal() {
           <div className="space-y-2">
             <h3 className="font-bold">Standardized Reporting Template</h3>
             <p className="text-xs">
-              The reporting structure and diagnostic categories are based on the recommendations from the Society for Pediatric Pathology (SPP) Placental Pathology Reporting Task Force:
+              This tool was developed from the following manuscript and the recommendations of its authors:
             </p>
             <blockquote className="border-l-2 pl-4 italic text-muted-foreground">
-              Ravishankar S, et al. Standardized Placental Pathology Reporting: Improving Quality and Clinical Utility. Society for Pediatric Pathology Placental Pathology Reporting Task Force. 2024.
+              Standardized Placental Pathology Reporting: Improving Quality and Clinical Utility. Recommendations from the Society for Pediatric Pathology Placental Pathology Reporting Task Force.
+            </blockquote>
+            <div className="text-xs text-muted-foreground pt-1 space-y-1">
+              <p className="font-semibold text-foreground">Authors &amp; affiliations</p>
+              <ul className="list-disc pl-5 space-y-1">
+                <li>Sanjita Ravishankar, MD — Department of Pathology, University Hospitals Cleveland Medical Center and Case Western Reserve University School of Medicine, Cleveland, OH, USA</li>
+                <li>Francois Cady, MD — CellNetix Pathology, Olympia, WA, USA</li>
+                <li>Chrystalle Katte Carreon, MD — Department of Pathology, Boston Children&apos;s Hospital and Harvard Medical School, Boston, MA, USA</li>
+                <li>Eumenia Castro, MD — Department of Pathology &amp; Laboratory Medicine, University of Wisconsin School of Medicine and Public Health, University of Wisconsin Hospital and Clinics</li>
+                <li>Virginia E. Duncan, MD — Department of Pathology, University of Alabama at Birmingham, Birmingham, AL, USA</li>
+                <li>Philip J. Katzman, MD — Department of Pathology and Laboratory Medicine, University of Rochester Medical Center, Rochester, NY, USA</li>
+                <li>Drucilla Roberts, MD — Department of Pathology, Massachusetts General Hospital and Harvard Medical School, Boston, MA, USA</li>
+                <li>Karen K. Mestan, MD — Department of Pediatrics, University of California San Diego, La Jolla, CA, USA</li>
+                <li>Cynthia Gyamfi-Bannerman, MD — Department of Obstetrics, Gynecology, and Reproductive Sciences, Division of Maternal-Fetal Medicine, University of California San Diego, La Jolla, CA, USA</li>
+                <li>Heather Florescue, MD — Department of Obstetrics and Gynecology, University of Rochester Medical Center, Rochester, NY, USA</li>
+                <li>Lindsey Wimmer, DNP — Star Legacy Foundation</li>
+                <li>Alicia Loehlein — Measure the Placenta</li>
+                <li>Mana Parast, MD — Department of Pathology, Center for Perinatal Discovery, University of California San Diego, La Jolla, CA, USA</li>
+              </ul>
+              <p className="pt-2">
+                <span className="font-semibold text-foreground">Correspondence:</span> Sanjita Ravishankar, MD, Department of Pathology, University Hospitals Cleveland Medical Center, Case Western Reserve University School of Medicine, 11100 Euclid Ave., Cleveland, OH 44106 — Sanjita.ravishankar@uhhospitals.org
+              </p>
+            </div>
+          </div>
+          <div className="space-y-2">
+            <h3 className="font-bold">Web App Design</h3>
+            <blockquote className="border-l-2 pl-4 italic text-muted-foreground">
+              Web app design: Chandra Krishnan, MD — chandra.krishnan@gmail.com
             </blockquote>
           </div>
           <div className="space-y-2">
