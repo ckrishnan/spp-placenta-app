@@ -222,8 +222,7 @@ export function AtlasModal() {
         <DialogHeader className="shrink-0">
           <DialogTitle className="font-headline text-2xl">Reference Picture Atlas</DialogTitle>
           <DialogDescription>
-            A visual guide to histopathologic findings, organized by image type. Each chapter
-            corresponds to a folder under <code>public/images/atlas/</code>.
+            A visual guide to histopathologic findings, organized by image type.
           </DialogDescription>
         </DialogHeader>
         <div className="min-h-0 flex-1 flex flex-col overflow-hidden">

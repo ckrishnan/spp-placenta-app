@@ -44,6 +44,22 @@ function titleCase(name: string): string {
     .join(" ");
 }
 
+// Preferred chapter ordering (keyed by folder name, case-insensitive). Folders not
+// listed here are sorted alphabetically after the curated ones.
+const CHAPTER_ORDER: Record<string, number> = {
+  "normal": 1,
+  "gross images": 2,
+  "acute chorioamnionitis": 3,
+  "chronic inflammatory lesions": 4,
+  "maternal vascular malperfusion": 5,
+  "fetal vascular malperfusion": 6,
+  "abruption": 7,
+  "villous and perivillous changes": 8,
+  "basal plate myometrial fibers": 9,
+  "infections": 10,
+  "miscellaneous lesions": 11,
+};
+
 export async function getAtlasChapters(): Promise<AtlasChapter[]> {
   // Look up curated metadata from the manifest by normalized image path.
   const manifestImages = manifest.placeholderImages ?? [];
@@ -112,9 +128,13 @@ export async function getAtlasChapters(): Promise<AtlasChapter[]> {
     });
   }
 
-  chapters.sort((a, b) =>
-    a.folder.localeCompare(b.folder, undefined, { numeric: true, sensitivity: "base" })
-  );
+  // Curated chapter order (see CHAPTER_ORDER); unknown folders sort alphabetically after.
+  chapters.sort((a, b) => {
+    const oa = CHAPTER_ORDER[a.folder.toLowerCase()] ?? Number.MAX_SAFE_INTEGER;
+    const ob = CHAPTER_ORDER[b.folder.toLowerCase()] ?? Number.MAX_SAFE_INTEGER;
+    if (oa !== ob) return oa - ob;
+    return a.folder.localeCompare(b.folder, undefined, { numeric: true, sensitivity: "base" });
+  });
 
   return chapters;
 }
