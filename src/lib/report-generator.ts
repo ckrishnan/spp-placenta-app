@@ -360,7 +360,7 @@ function generateFinalDiagnosisForFinding(finding: Findings, isTwin: boolean, in
 
     Object.entries(grouped).forEach(([pid, texts]) => {
         if (pid !== 'OTHER') {
-            let header = injuryPatterns[pid as keyof typeof injuryPatterns].name;
+            let header: string = injuryPatterns[pid as keyof typeof injuryPatterns].name;
             if (pid === 'MVM') header = "Maternal vascular malperfusion lesions";
             if (pid === 'FVM') {
                 const highGradeIds = ['fetal-vessel-thrombosis', 'stem-vessel-obliteration'];

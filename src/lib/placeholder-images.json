@@ -1,52 +1,145 @@
 {
   "_instructions": [
     "--- HOW TO ADD AND LINK IMAGES ---",
-    "This file is a manifest for all images used in the Picture Atlas and tooltips.",
-    "Yes, the Picture Atlas updates automatically when you edit this file and `src/lib/constants.ts`.",
     "",
-    "Step 1: Add your image file.",
-    "Place your new image (e.g., 'my-new-image.jpg') into the `public/images/atlas/` directory.",
+    "PICTURE ATLAS (chapters) — automatic:",
+    "The Picture Atlas is auto-generated from the folder structure under `public/images/atlas/`.",
+    "Each subfolder becomes a chapter (tab) in the atlas modal, and every image file inside it is",
+    "shown automatically. Supported extensions: jpg, jpeg, png, gif, webp, bmp, tif, tiff, avif.",
+    "To add a new chapter: create a new folder and drop image files into it. That is all — labels",
+    "are derived from the file names, and the new chapter appears without any code changes.",
     "",
-    "Step 2: Add a new image entry below.",
-    "Inside the `placeholderImages` array, add a new JSON object for your image. It must have:",
-    "  - `id`: A unique string to identify this image (e.g., 'my-new-image').",
-    "  - `description`: Text that describes the image.",
-    "  - `imageUrl`: The path to your image. This MUST start with '/images/atlas/'. (e.g., '/images/atlas/my-new-image.jpg').",
+    "OPTIONAL manifest registration (recommended):",
+    "Add an entry below to provide a curated label and AI search hints, and to make the image",
+    "linkable to specific findings in the per-lesion tooltips. It must have:",
+    "  - `id`: A unique string to identify this image (e.g., 'normal-uc').",
+    "  - `description`: Text that describes the image (used as the atlas label).",
+    "  - `imageUrl`: The path to your image. MUST start with '/images/atlas/' and match the folder +",
+    "    file name exactly, e.g. '/images/atlas/normal/normal uc.png'.",
     "  - `imageHint`: One or two keywords for AI image search.",
+    "Images already on disk are shown even without a manifest entry; registering only overrides the",
+    "auto-generated label and enables tooltip linking.",
     "",
-    "Step 3: Link the image to a lesion.",
-    "Open `src/lib/constants.ts`. Find the lesion you want to associate the image with.",
-    "Add the `id` from Step 2 to its `imageIds` array.",
-    "Example in `src/lib/constants.ts`:",
-    "  `imageIds: ['uc-2-vessel-cord', 'uc-2-vessel-cord-gross', 'my-new-image']`",
+    "TOOLTIP LINKAGE (lesion -> images):",
+    "Open `src/lib/atlas.ts`. In the `atlasData` map, use the key `\"<compartmentId>:<alterationId>\"`",
+    "for the lesion you want to associate images with (compartment ids: umbilicalCord, membranes,",
+    "placentalVilli, maternalDecidua; alteration ids match the `id` fields in `src/lib/constants.ts`).",
+    "Add the manifest `id`(s) above to that key's array of image ids.",
+    "Example in `src/lib/atlas.ts`:",
+    "  \"placentalVilli:normal\": [\"normal-term-villi\", \"my-new-image\"]",
     "",
-    "You can add as many image IDs as you need to the `imageIds` array for any lesion."
+    "Tooltip images resolve by manifest id only — an id listed in `atlasData` that is missing from the",
+    "manifest below is silently skipped. The Picture Atlas chapters do NOT depend on this manifest."
   ],
   
   "placeholderImages": [
     {
-      "id": "normal-ved19",
-      "imageUrl": "/images/atlas/normal/VED19.jpg",
-      "imageHint": "Normal term villi - high power",
-      "description": "Normal term villi"
+      "id": "normal-uc",
+      "description": "Normal umbilical cord",
+      "imageUrl": "/images/atlas/normal/normal uc.png",
+      "imageHint": "umbilical cord"
     },
     {
-      "id": "pjk2-normal-chorionic-plate",
-      "imageUrl": "/images/atlas/normal/PJK2_Normal_Chorionic_Plate.JPG",
-      "imageHint": "Normal chorionic plate",
-      "description": "Normal chorionic plate"
+      "id": "normal-umbilical-cord",
+      "description": "Normal umbilical cord (cross-section)",
+      "imageUrl": "/images/atlas/normal/Normal Umbilical Cord.JPG",
+      "imageHint": "umbilical cord vessels"
     },
     {
-      "id": "pjk4-normal-basal-plate",
-      "imageUrl": "/images/atlas/normal/PJK4_Normal_Basal_Plate.JPG",
-      "imageHint": "Normal basal plate",
-      "description": "Normal basal plate"
+      "id": "normal-chorionic-plate",
+      "description": "Normal chorionic plate",
+      "imageUrl": "/images/atlas/normal/Normal Chorionic Plate.JPG",
+      "imageHint": "chorionic plate"
     },
     {
-      "id": "pjk6-normal-umbilical-cord",
-      "imageUrl": "/images/atlas/normal/PJK6_Normal_Umbilical_Cord.JPG",
-      "imageHint": "Normal umbilical cord",
-      "description": "Normal umbilical cord"
+      "id": "normal-chorionic-plate-2",
+      "description": "Normal chorionic plate (2)",
+      "imageUrl": "/images/atlas/normal/normal chorionic plate (2).jpg",
+      "imageHint": "chorionic plate"
+    },
+    {
+      "id": "normal-chorion",
+      "description": "Normal chorion",
+      "imageUrl": "/images/atlas/normal/normal chorionic.jpg",
+      "imageHint": "chorion"
+    },
+    {
+      "id": "normal-membranes-low",
+      "description": "Normal membranes (low power)",
+      "imageUrl": "/images/atlas/normal/normal membranes low.jpg",
+      "imageHint": "membranes low power"
+    },
+    {
+      "id": "normal-membranes-med",
+      "description": "Normal membranes (medium power)",
+      "imageUrl": "/images/atlas/normal/normal membranes med.jpg",
+      "imageHint": "membranes medium power"
+    },
+    {
+      "id": "normal-membranes-high",
+      "description": "Normal membranes (high power)",
+      "imageUrl": "/images/atlas/normal/normal membranes high.jpg",
+      "imageHint": "membranes high power"
+    },
+    {
+      "id": "normal-basal-plate",
+      "description": "Normal basal plate",
+      "imageUrl": "/images/atlas/normal/Normal Basal Plate.JPG",
+      "imageHint": "basal plate decidua"
+    },
+    {
+      "id": "normal-basal-plate-2",
+      "description": "Normal basal plate (2)",
+      "imageUrl": "/images/atlas/normal/normal basal plate (2).jpg",
+      "imageHint": "basal plate decidua"
+    },
+    {
+      "id": "normal-term-villi",
+      "description": "Normal term villi",
+      "imageUrl": "/images/atlas/normal/normal term villi.jpg",
+      "imageHint": "term villi"
+    },
+    {
+      "id": "normal-term-villi-high",
+      "description": "Normal term villi (high power)",
+      "imageUrl": "/images/atlas/normal/normal term villi high.jpg",
+      "imageHint": "term villi high power"
+    },
+    {
+      "id": "normal-villi-1st-trimester",
+      "description": "Normal first-trimester villi",
+      "imageUrl": "/images/atlas/normal/normal villi 1st trimester.jpg",
+      "imageHint": "first trimester villi"
+    },
+    {
+      "id": "normal-villi-2nd-trimester",
+      "description": "Normal second-trimester villi",
+      "imageUrl": "/images/atlas/normal/normal villi 2nd trimester.jpg",
+      "imageHint": "second trimester villi"
+    },
+    {
+      "id": "normal-villi-2nd-trimester-high",
+      "description": "Normal second-trimester villi (high power)",
+      "imageUrl": "/images/atlas/normal/normal villi 2nd trimester high.jpg",
+      "imageHint": "second trimester villi high power"
+    },
+    {
+      "id": "normal-villi-5-weeks",
+      "description": "Normal villi (5 weeks gestation)",
+      "imageUrl": "/images/atlas/normal/normal villi 5 weeks.jpg",
+      "imageHint": "early gestation 5 weeks"
+    },
+    {
+      "id": "normal-villi-5-weeks-2",
+      "description": "Normal villi (5 weeks gestation, 2)",
+      "imageUrl": "/images/atlas/normal/norma villi 5 weeks2.jpg",
+      "imageHint": "early gestation 5 weeks"
+    },
+    {
+      "id": "normal-villi-8-weeks",
+      "description": "Normal villi (8 weeks gestation)",
+      "imageUrl": "/images/atlas/normal/normal villi 8 weeks.jpg",
+      "imageHint": "early gestation 8 weeks"
     }
   ]
 }
