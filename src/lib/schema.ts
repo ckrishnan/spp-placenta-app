@@ -33,6 +33,9 @@ const findingsSchema = z.object({
     longCord: z.boolean().default(false),
     hypercoiledCord: z.boolean().default(false),
     trueKnot: z.boolean().default(false),
+    cordStricture: z.boolean().default(false),
+    thinCord: z.boolean().default(false),
+    tetheredCord: z.boolean().default(false),
     greenStaining: z.boolean().default(false),
   }),
 
@@ -77,6 +80,14 @@ const findingsSchema = z.object({
 
   // DVM Details
   dvmFocality: z.enum(['focal', 'diffuse']).optional(),
+
+  // Chronic villitis extent (focal/multifocal for low grade; patchy/diffuse for high grade)
+  chronicVillitisExtent: z.enum(['focal', 'multifocal', 'patchy', 'diffuse']).optional(),
+
+  // Pigment-laden macrophages location
+  pigmentMacrophagesMembranes: z.boolean().default(false),
+  pigmentMacrophagesChorionicPlate: z.boolean().default(false),
+  pigmentMacrophagesChorionicVesselWalls: z.boolean().default(false),
 
   additionalMicroscopicFindings: z.string().optional(),
 });

@@ -70,6 +70,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const imageMap = new Map(PlaceHolderImages.map(img => [img.id, img]));
 
+// Build a compartment value object with every alteration explicitly set to false.
+// Explicit keys are required so that form.reset() reliably clears the data-driven
+// checkbox fields (an empty object leaves them untouched on reset).
+function emptyCompartment(id: 'umbilicalCord' | 'membranes' | 'placentalVilli' | 'maternalDecidua'): Record<string, boolean> {
+  const compartment = compartments.find(c => c.id === id);
+  if (!compartment) return {};
+  return Object.fromEntries(compartment.alterations.map(a => [a.id, false]));
+}
+
 export function PlacentaPathfinder() {
   const [report, setReport] = useState("");
   const [microscopicDescription, setMicroscopicDescription] = useState("");
@@ -93,12 +102,15 @@ export function PlacentaPathfinder() {
       longCord: false,
       hypercoiledCord: false,
       trueKnot: false,
+      cordStricture: false,
+      thinCord: false,
+      tetheredCord: false,
       greenStaining: false,
     },
-    umbilicalCord: {},
-    membranes: {},
-    placentalVilli: {},
-    maternalDecidua: {},
+    umbilicalCord: emptyCompartment('umbilicalCord'),
+    membranes: emptyCompartment('membranes'),
+    placentalVilli: emptyCompartment('placentalVilli'),
+    maternalDecidua: emptyCompartment('maternalDecidua'),
     mirStage: undefined,
     mirGrade: undefined,
     firStage: undefined,
@@ -119,6 +131,10 @@ export function PlacentaPathfinder() {
     bpmfLength: '',
     bpmfStage: undefined,
     dvmFocality: undefined,
+    chronicVillitisExtent: undefined,
+    pigmentMacrophagesMembranes: false,
+    pigmentMacrophagesChorionicPlate: false,
+    pigmentMacrophagesChorionicVesselWalls: false,
     specificInfections: {
         candida: false,
         cmv: false,
@@ -263,58 +279,11 @@ export function PlacentaPathfinder() {
      setMicroscopicDescription("");
   };
 
-  const handleClearAllSelections = (resetCaseInfo = true) => {
-    if (resetCaseInfo) {
-      form.reset(defaultValues);
-    } else {
-        const currentFindings = form.getValues(`findings.${activeTwinIndex}`);
-        
-        Object.keys(currentFindings.grossFindings).forEach(key => {
-            form.setValue(`findings.${activeTwinIndex}.grossFindings.${key as any}` as any, false);
-        });
-        
-        compartments.forEach(compartment => {
-            const alterationValues = currentFindings[compartment.id as keyof Findings] as Record<string, boolean>;
-            if (alterationValues) {
-              Object.keys(alterationValues).forEach(key => {
-                  form.setValue(`findings.${activeTwinIndex}.${compartment.id}.${key as any}` as any, false);
-              });
-            }
-        });
-
-        Object.keys(currentFindings.specificInfections).forEach(key => {
-            if (key === 'other') {
-                form.setValue(`findings.${activeTwinIndex}.specificInfections.other` as any, '');
-            } else {
-                form.setValue(`findings.${activeTwinIndex}.specificInfections.${key as any}` as any, false);
-            }
-        });
-
-        // Clear additional detail fields
-        form.setValue(`findings.${activeTwinIndex}.mirStage` as any, undefined);
-        form.setValue(`findings.${activeTwinIndex}.mirGrade` as any, undefined);
-        form.setValue(`findings.${activeTwinIndex}.firStage` as any, undefined);
-        form.setValue(`findings.${activeTwinIndex}.firGrade` as any, undefined);
-        form.setValue(`findings.${activeTwinIndex}.bacteriaPresent` as any, undefined);
-        form.setValue(`findings.${activeTwinIndex}.gramStainResults` as any, undefined);
-        form.setValue(`findings.${activeTwinIndex}.gmsResults` as any, undefined);
-        form.setValue(`findings.${activeTwinIndex}.infarctSize` as any, undefined);
-        form.setValue(`findings.${activeTwinIndex}.infarctExtent` as any, undefined);
-        form.setValue(`findings.${activeTwinIndex}.hematomaParenchymalCompression` as any, false);
-        form.setValue(`findings.${activeTwinIndex}.hematomaOverlyingInfarction` as any, false);
-        form.setValue(`findings.${activeTwinIndex}.thrombusType` as any, undefined);
-        form.setValue(`findings.${activeTwinIndex}.thrombusLocation` as any, undefined);
-        form.setValue(`findings.${activeTwinIndex}.intramuralFibrinLocation` as any, undefined);
-        form.setValue(`findings.${activeTwinIndex}.avascularVilliSize` as any, undefined);
-        form.setValue(`findings.${activeTwinIndex}.vsvkSize` as any, undefined);
-        form.setValue(`findings.${activeTwinIndex}.bpmfFocality` as any, undefined);
-        form.setValue(`findings.${activeTwinIndex}.bpmfLength` as any, '');
-        form.setValue(`findings.${activeTwinIndex}.bpmfStage` as any, undefined);
-        form.setValue(`findings.${activeTwinIndex}.dvmFocality` as any, undefined);
-
-        form.setValue(`findings.${activeTwinIndex}.additionalMicroscopicFindings` as any, '');
-    }
-      
+  const handleClearAllSelections = () => {
+    // Full reset: clears header, clinical context, gross + microscopic findings,
+    // specific infections, and twin settings for all sections.
+    form.reset(defaultValues);
+    setActiveTwinIndex(0);
     setReport('');
     setMicroscopicDescription("");
   };
@@ -766,6 +735,30 @@ export function PlacentaPathfinder() {
                               </FormLabel>
                             </FormItem>
                           )} />
+                          <FormField control={form.control} name={`findings.${activeTwinIndex}.grossFindings.cordStricture`} render={({ field }) => (
+                            <FormItem className="p-0 rounded-md border">
+                              <FormLabel className="flex flex-row items-start space-x-3 space-y-0 p-3 font-normal cursor-pointer h-full">
+                                <FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl>
+                                <span className="flex-1">Umbilical cord stricture</span>
+                              </FormLabel>
+                            </FormItem>
+                          )} />
+                          <FormField control={form.control} name={`findings.${activeTwinIndex}.grossFindings.thinCord`} render={({ field }) => (
+                            <FormItem className="p-0 rounded-md border">
+                              <FormLabel className="flex flex-row items-start space-x-3 space-y-0 p-3 font-normal cursor-pointer h-full">
+                                <FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl>
+                                <span className="flex-1">Thin umbilical cord</span>
+                              </FormLabel>
+                            </FormItem>
+                          )} />
+                          <FormField control={form.control} name={`findings.${activeTwinIndex}.grossFindings.tetheredCord`} render={({ field }) => (
+                            <FormItem className="p-0 rounded-md border">
+                              <FormLabel className="flex flex-row items-start space-x-3 space-y-0 p-3 font-normal cursor-pointer h-full">
+                                <FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl>
+                                <span className="flex-1">Tethered umbilical cord</span>
+                              </FormLabel>
+                            </FormItem>
+                          )} />
                           <FormField control={form.control} name={`findings.${activeTwinIndex}.grossFindings.greenStaining`} render={({ field }) => (
                             <FormItem className="p-0 rounded-md border">
                               <FormLabel className="flex flex-row items-start space-x-3 space-y-0 p-3 font-normal cursor-pointer h-full">
@@ -811,7 +804,7 @@ export function PlacentaPathfinder() {
                               <Button type="button" variant="outline" size="sm" onClick={() => handleMarkAllNormal()}>
                                   Mark All as Normal
                               </Button>
-                              <Button type="button" variant="outline" size="sm" onClick={() => handleClearAllSelections(false)}>
+                              <Button type="button" variant="outline" size="sm" onClick={() => handleClearAllSelections()}>
                                   Clear All Selections
                               </Button>
                             </div>
@@ -935,7 +928,7 @@ export function PlacentaPathfinder() {
                                                         </div>
                                                     </div>
                                                     </div>
-                                                    {alteration.id === 'acute-chorioamnionitis' && field.value && (
+                                                    {(alteration.id === 'acute-chorioamnionitis' || alteration.id === 'acute-subchorionitis' || alteration.id === 'acute-chorionitis') && field.value && (
                                                       <div className="space-y-4 p-2 pt-2 mt-2 border-t">
                                                         <div className="grid grid-cols-2 gap-4">
                                                             <FormField control={form.control} name={`findings.${activeTwinIndex}.mirStage`} render={({ field }) => (
@@ -1108,6 +1101,45 @@ export function PlacentaPathfinder() {
                                                             <SelectContent><SelectItem value="focal">Focal</SelectItem><SelectItem value="diffuse">Diffuse</SelectItem></SelectContent>
                                                           </Select>
                                                           </FormItem>
+                                                        )}/>
+                                                      </div>
+                                                    )}
+                                                    {(alteration.id === 'low-grade-chronic-villitis' || alteration.id === 'high-grade-chronic-villitis') && field.value && (
+                                                      <div className="p-2 pt-2 mt-2 border-t">
+                                                        <FormField control={form.control} name={`findings.${activeTwinIndex}.chronicVillitisExtent`} render={({ field }) => (
+                                                          <FormItem><FormLabel>Extent</FormLabel>
+                                                          <Select onValueChange={field.onChange} value={field.value}>
+                                                            <FormControl>
+                                                              <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+                                                            </FormControl>
+                                                            <SelectContent>
+                                                              {alteration.id === 'low-grade-chronic-villitis' ? (
+                                                                <>
+                                                                  <SelectItem value="focal">Focal</SelectItem>
+                                                                  <SelectItem value="multifocal">Multifocal</SelectItem>
+                                                                </>
+                                                              ) : (
+                                                                <>
+                                                                  <SelectItem value="patchy">Patchy</SelectItem>
+                                                                  <SelectItem value="diffuse">Diffuse</SelectItem>
+                                                                </>
+                                                              )}
+                                                            </SelectContent>
+                                                          </Select>
+                                                          </FormItem>
+                                                        )}/>
+                                                      </div>
+                                                    )}
+                                                    {alteration.id === 'pigment-laden-macrophages' && field.value && (
+                                                      <div className="space-y-2 p-2 pt-2 mt-2 border-t">
+                                                        <FormField control={form.control} name={`findings.${activeTwinIndex}.pigmentMacrophagesMembranes`} render={({ field }) => (
+                                                          <FormItem className="flex flex-row items-center space-x-3 space-y-0"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl><FormLabel className="font-normal text-xs">Membranes</FormLabel></FormItem>
+                                                        )}/>
+                                                        <FormField control={form.control} name={`findings.${activeTwinIndex}.pigmentMacrophagesChorionicPlate`} render={({ field }) => (
+                                                          <FormItem className="flex flex-row items-center space-x-3 space-y-0"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl><FormLabel className="font-normal text-xs">Chorionic plate</FormLabel></FormItem>
+                                                        )}/>
+                                                        <FormField control={form.control} name={`findings.${activeTwinIndex}.pigmentMacrophagesChorionicVesselWalls`} render={({ field }) => (
+                                                          <FormItem className="flex flex-row items-center space-x-3 space-y-0"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl><FormLabel className="font-normal text-xs">Chorionic vessel walls</FormLabel></FormItem>
                                                         )}/>
                                                       </div>
                                                     )}

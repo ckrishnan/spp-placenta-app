@@ -78,7 +78,17 @@ function generateMicroscopicForFinding(finding: Findings, isTwin: boolean, index
     if (finding.membranes['chronic-chorioamnionitis']) memParts.push("There is a lymphoplasmacytic infiltrate involving the chorion and amnion.");
     if (finding.membranes['chorionic-histiocytic-hyperplasia']) memParts.push("There is an increase in the number of histiocytes in the chorionic plate.");
     if (finding.membranes['chorioamniotic-hemosiderosis']) memParts.push("There is chorioamniotic hemosiderosis with hemosiderin-laden macrophages in the amnion and chorion.");
-    if (finding.membranes['pigment-laden-macrophages']) memParts.push("Pigment-laden macrophages are present in the membranes and chorionic plate.");
+    if (finding.membranes['pigment-laden-macrophages']) {
+        const locations: string[] = [];
+        if (finding.pigmentMacrophagesMembranes) locations.push('membranes');
+        if (finding.pigmentMacrophagesChorionicPlate) locations.push('chorionic plate');
+        if (finding.pigmentMacrophagesChorionicVesselWalls) locations.push('chorionic vessel walls');
+        if (locations.length > 0) {
+            memParts.push(`Pigment-laden macrophages are present in the ${locations.join(' and ')}.`);
+        } else {
+            memParts.push("Pigment-laden macrophages are present in the membranes and chorionic plate.");
+        }
+    }
     if (finding.membranes['meconium-chorionic-vasculitis']) memParts.push("There is a mild neutrophilic infiltrate in the walls of the chorionic vessels, consistent with meconium-associated vasculitis.");
     if (finding.membranes['membranous-laminar-decidual-necrosis']) memParts.push("There is laminar necrosis of the decidua capsularis/laeve.");
     if (finding.membranes['amnion-nodosum']) memParts.push("Nodules of vernix caseosa and squames are present on the fetal surface of the amnion.");
@@ -126,8 +136,18 @@ function generateMicroscopicForFinding(finding: Findings, isTwin: boolean, index
         const locationText = finding.intramuralFibrinLocation === 'chorionic-plate' ? 'chorionic plate vessels' : finding.intramuralFibrinLocation === 'stem-vessel' ? 'stem vessels' : 'large fetal vessels';
         diskParts.push(`There is intramural fibrin deposition within the walls of ${locationText}.`);
     }
-    if (finding.placentalVilli['low-grade-chronic-villitis']) diskParts.push("There is low-grade chronic villitis of unknown etiology (VUE) characterized by a lymphohistiocytic infiltrate involving less than 10 villi per focus.");
-    if (finding.placentalVilli['high-grade-chronic-villitis']) diskParts.push("There is high-grade chronic villitis of unknown etiology (VUE) characterized by a lymphohistiocytic infiltrate involving more than 10 villi per focus or multiple foci.");
+    if (finding.placentalVilli['low-grade-chronic-villitis']) {
+        let text = "There is low-grade chronic villitis of unknown etiology (VUE) characterized by a lymphohistiocytic infiltrate involving less than 10 villi per focus";
+        if (finding.chronicVillitisExtent) text += `, ${finding.chronicVillitisExtent}`;
+        text += ".";
+        diskParts.push(text);
+    }
+    if (finding.placentalVilli['high-grade-chronic-villitis']) {
+        let text = "There is high-grade chronic villitis of unknown etiology (VUE) characterized by a lymphohistiocytic infiltrate involving more than 10 villi per focus or multiple foci";
+        if (finding.chronicVillitisExtent) text += `, ${finding.chronicVillitisExtent}`;
+        text += ".";
+        diskParts.push(text);
+    }
     if (finding.placentalVilli['chronic-histiocytic-intervillositis']) diskParts.push("There is chronic histiocytic intervillositis.");
     if (finding.placentalVilli['basal-chronic-villitis']) diskParts.push("There is chronic villitis involving the basal villi.");
     if (finding.placentalVilli['eosinophilic-t-cell-vasculitis']) diskParts.push("There is eosinophilic/T-cell vasculitis involving the chorionic plate vessels.");
@@ -186,7 +206,7 @@ function generateMicroscopicForFinding(finding: Findings, isTwin: boolean, index
   return twinPrefix + parts.join('\n\n');
 }
 
-function generateFinalDiagnosisForFinding(finding: Findings, isTwin: boolean, index: number, ga: number): string[] {
+function generateFinalDiagnosisForFinding(finding: Findings, isTwin: boolean, index: number, ga: number, clinicalMSF: boolean): string[] {
   const lines: string[] = [];
   const twinPrefix = isTwin ? `TWIN ${index === 0 ? 'A' : 'B'}:` : '';
   
@@ -197,7 +217,10 @@ function generateFinalDiagnosisForFinding(finding: Findings, isTwin: boolean, in
   const percentileText = (percentile && percentile !== 'N/A') ? ` (${percentile} percentile)` : '';
   lines.push(`- Placental weight: ${finding.placentalWeight} g${percentileText}`);
 
-  const findingsList: { patternId: string | null; text: string }[] = [];
+  const findingsList: { patternId: string | null; text: string; id?: string }[] = [];
+
+  // Meconium-related diagnoses are grouped together under their own header in the output.
+  const meconiumIds = new Set(['pigment-laden-macrophages', 'meconium-chorionic-vasculitis', 'meconium-umbilical-vasculitis', 'meconium-associated-vascular-necrosis']);
 
   // Compartment alterations
   compartments.forEach(compartment => {
@@ -208,6 +231,33 @@ function generateFinalDiagnosisForFinding(finding: Findings, isTwin: boolean, in
           const alteration = compartment.alterations.find(a => a.id === id);
           if (alteration) {
             let text = alteration.reportingText || alteration.name;
+            
+            if (meconiumIds.has(id)) {
+                if (id === 'pigment-laden-macrophages') {
+                    const locations: string[] = [];
+                    if (finding.pigmentMacrophagesMembranes) locations.push('membranes');
+                    if (finding.pigmentMacrophagesChorionicPlate) locations.push('chorionic plate');
+                    if (finding.pigmentMacrophagesChorionicVesselWalls) locations.push('chorionic vessel walls');
+                    let meconiumText = 'Pigment-laden macrophages';
+                    if (locations.length > 0) {
+                        meconiumText += ` in ${locations.join(' and ')}`;
+                    } else {
+                        meconiumText += ' in membranes/chorionic plate/chorionic vessel walls';
+                    }
+                    if (clinicalMSF) meconiumText += ', consistent with meconium';
+                    findingsList.push({ patternId: 'MECONIUM', text: `- ${meconiumText}`, id });
+                    return;
+                }
+                if (id === 'meconium-chorionic-vasculitis' || id === 'meconium-umbilical-vasculitis') {
+                    let meconiumText = alteration.reportingText || alteration.name;
+                    if (clinicalMSF) meconiumText += ', consistent with meconium';
+                    findingsList.push({ patternId: 'MECONIUM', text: `- ${meconiumText}`, id });
+                    return;
+                }
+                // meconium-associated-vascular-necrosis
+                findingsList.push({ patternId: 'MECONIUM', text: `- ${alteration.name}`, id });
+                return;
+            }
             
             if (id === 'acute-chorioamnionitis' || id === 'acute-subchorionitis' || id === 'acute-chorionitis') {
                 let diagnosisTitle = "";
@@ -237,7 +287,7 @@ function generateFinalDiagnosisForFinding(finding: Findings, isTwin: boolean, in
                     diagnosisTitle += ` [with fetal inflammatory response in ${firLocation}]`;
                 }
                 
-                diagnosisTitle = `- ${diagnosisTitle}:`;
+                diagnosisTitle = `-- ${diagnosisTitle}:`;
                 
                 const responseLines: string[] = [];
                 if (finding.mirStage) {
@@ -247,7 +297,7 @@ function generateFinalDiagnosisForFinding(finding: Findings, isTwin: boolean, in
                     responseLines.push(`Fetal inflammatory response, stage ${finding.firStage}${finding.firGrade ? `, grade ${finding.firGrade}` : ''}`);
                 }
                 
-                const fullBlock = [diagnosisTitle, ...responseLines].join('\n');
+                const fullBlock = [diagnosisTitle, ...responseLines.map(l => `\t- ${l}`)].join('\n');
                 // Use null patternId to avoid grouping and keep it as a top-level block
                 findingsList.push({ patternId: null, text: fullBlock });
                 return;
@@ -282,18 +332,19 @@ function generateFinalDiagnosisForFinding(finding: Findings, isTwin: boolean, in
                 text = `Intramural fibrin deposition within ${locText}`;
             }
 
-            if (id === 'basal-plate-myometrial-fibers' && (finding.bpmfStage || finding.bpmfLength)) {
+            if (id === 'basal-plate-myometrial-fibers' && (finding.bpmfFocality || finding.bpmfStage || finding.bpmfLength)) {
                 const details: string[] = [];
-                if (finding.bpmfStage) details.push(`Stage ${finding.bpmfStage}`);
+                if (finding.bpmfFocality) details.push(finding.bpmfFocality);
+                if (finding.bpmfStage) details.push(`stage ${finding.bpmfStage}`);
                 if (finding.bpmfLength) details.push(finding.bpmfLength);
-                text += ` (${details.join(', ')})`;
+                text = `Basal plate myometrial fibers, ${details.join(', ')}, see comment`;
             }
 
             if (id === 'delayed-villous-maturation' && finding.dvmFocality) text += ` (${finding.dvmFocality})`;
             
             if (id === 'villous-dysmaturity') {
                 // Independent line for dysmaturity
-                findingsList.push({ patternId: 'OTHER', text: `-- Villous dysmaturity (delayed villous maturation with increased syncytial knots), see comment` });
+                findingsList.push({ patternId: 'OTHER', text: `- Villous dysmaturity (delayed villous maturation with increased syncytial knots), see comment` });
                 return;
             }
 
@@ -302,6 +353,12 @@ function generateFinalDiagnosisForFinding(finding: Findings, isTwin: boolean, in
                 if (finding.hematomaParenchymalCompression) details.push("parenchymal compression");
                 if (finding.hematomaOverlyingInfarction) details.push("overlying villous infarction");
                 text += ` with ${details.join(' and ')}`;
+            }
+
+            if ((id === 'low-grade-chronic-villitis' || id === 'high-grade-chronic-villitis') && finding.chronicVillitisExtent) {
+                // Manuscript style: extent precedes grade, e.g. "Patchy high grade chronic villitis"
+                const extent = finding.chronicVillitisExtent.charAt(0).toUpperCase() + finding.chronicVillitisExtent.slice(1);
+                text = `${extent} ${text.charAt(0).toLowerCase() + text.slice(1)}`;
             }
             
             findingsList.push({ patternId: alteration.patternId, text: `- ${text}` });
@@ -316,15 +373,20 @@ function generateFinalDiagnosisForFinding(finding: Findings, isTwin: boolean, in
 
   // Gross findings
   if (finding.grossFindings) {
+    const fvmGrossIds = ['longCord', 'hypercoiledCord', 'trueKnot', 'marginalCordInsertion', 'velamentousCordInsertion', 'cordStricture', 'thinCord', 'tetheredCord'];
+    const grossLabels: Record<string, string> = {
+        cordStricture: 'Umbilical cord stricture',
+        thinCord: 'Thin umbilical cord',
+        tetheredCord: 'Tethered umbilical cord',
+    };
     Object.entries(finding.grossFindings).forEach(([id, selected]) => {
       if (selected) {
         if (id === 'greenStaining') {
-            findingsList.push({ patternId: 'OTHER', text: `- Green stained placenta, grossly consistent with meconium exposure` });
+            findingsList.push({ patternId: 'MECONIUM', text: `- Green stained placenta, grossly consistent with meconium exposure`, id: 'greenStaining' });
         } else {
-            const fvmGrossIds = ['longCord', 'hypercoiledCord', 'trueKnot', 'marginalCordInsertion', 'velamentousCordInsertion'];
             const patternId = (hasFVM && fvmGrossIds.includes(id)) ? 'FVM' : 'OTHER';
             
-            const text = id.replace(/([A-Z])/g, ' $1').toLowerCase();
+            const text = grossLabels[id] || id.replace(/([A-Z])/g, ' $1').toLowerCase();
             findingsList.push({ patternId, text: `- ${text.charAt(0).toUpperCase() + text.slice(1)}` });
         }
       }
@@ -337,14 +399,14 @@ function generateFinalDiagnosisForFinding(finding: Findings, isTwin: boolean, in
       if (selected && id !== 'other') {
         const displayId = id === 'cmv' ? 'CMV' : id === 'hsv' ? 'HSV' : id === 'parvovirus' ? 'Parvovirus' : id.charAt(0).toUpperCase() + id.slice(1);
         if (id === 'candida') {
-             findingsList.push({ patternId: 'OTHER', text: `-- Funisitis with fungal organisms, morphologically consistent with Candida funisitis` });
+             findingsList.push({ patternId: 'OTHER', text: `- Funisitis with fungal organisms, morphologically consistent with Candida funisitis` });
         } else {
-             findingsList.push({ patternId: 'OTHER', text: `-- Findings consistent with ${displayId} placentitis` });
+             findingsList.push({ patternId: 'OTHER', text: `- Findings consistent with ${displayId} placentitis` });
         }
       }
     });
     if (finding.specificInfections.other) {
-        findingsList.push({ patternId: 'OTHER', text: `-- Other infection: ${finding.specificInfections.other}` });
+        findingsList.push({ patternId: 'OTHER', text: `- Other infection: ${finding.specificInfections.other}` });
     }
   }
 
@@ -354,12 +416,39 @@ function generateFinalDiagnosisForFinding(finding: Findings, isTwin: boolean, in
     const grouped = findingsList.reduce((acc, f) => {
         const pid = f.patternId || 'OTHER';
         if (!acc[pid]) acc[pid] = [];
-        acc[pid].push(f.text);
+        acc[pid].push({ text: f.text, id: f.id });
         return acc;
-    }, {} as Record<string, string[]>);
+    }, {} as Record<string, { text: string; id?: string }[]>);
 
-    Object.entries(grouped).forEach(([pid, texts]) => {
-        if (pid !== 'OTHER') {
+    // Deterministic, clinically sensible group order so all diagnoses of the same
+    // injury pattern print contiguously (meconium findings get their own group).
+    const groupOrder = ['MVM', 'FVM', 'AC', 'AA', 'CI', 'DVM', 'VCL', 'MECONIUM', 'OTHER'];
+    const orderedGroups = Object.keys(grouped).sort((a, b) => {
+        const ia = groupOrder.indexOf(a);
+        const ib = groupOrder.indexOf(b);
+        return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib);
+    });
+
+    const meconiumOrder: Record<string, number> = {
+        'greenStaining': 0,
+        'pigment-laden-macrophages': 1,
+        'meconium-umbilical-vasculitis': 2,
+        'meconium-chorionic-vasculitis': 3,
+        'meconium-associated-vascular-necrosis': 4,
+    };
+
+    orderedGroups.forEach(pid => {
+        const entries = grouped[pid];
+        if (pid === 'MECONIUM') {
+            const sorted = [...entries].sort(
+                (a, b) => (meconiumOrder[a.id ?? ''] ?? 99) - (meconiumOrder[b.id ?? ''] ?? 99)
+            );
+            lines.push('-- Meconium-related findings:');
+            sorted.forEach(e => {
+                const cleanText = e.text.startsWith('- ') ? e.text.slice(2) : e.text;
+                lines.push(`\t- ${cleanText}`);
+            });
+        } else if (pid !== 'OTHER') {
             let header: string = injuryPatterns[pid as keyof typeof injuryPatterns].name;
             if (pid === 'MVM') header = "Maternal vascular malperfusion lesions";
             if (pid === 'FVM') {
@@ -370,17 +459,17 @@ function generateFinalDiagnosisForFinding(finding: Findings, isTwin: boolean, in
                 
                 header = `Fetal vascular malperfusion lesions [${isHighGrade ? 'high grade' : 'low grade'}]`;
             }
-            lines.push(`- ${header}:`);
-            texts.forEach(t => {
-                const cleanText = t.startsWith('- ') ? t.slice(2) : t.startsWith('-- ') ? t.slice(3) : t;
+            lines.push(`-- ${header}:`);
+            entries.forEach(e => {
+                const cleanText = e.text.startsWith('- ') ? e.text.slice(2) : e.text.startsWith('-- ') ? e.text.slice(3) : e.text;
                 const indentedText = cleanText.split('\n').map((line, idx) => {
-                    if (idx === 0) return `  - ${line}`;
-                    return `    ${line}`;
+                    if (idx === 0) return `\t- ${line}`;
+                    return `\t  ${line}`;
                 }).join('\n');
                 lines.push(indentedText);
             });
         } else {
-            texts.forEach(t => lines.push(t));
+            entries.forEach(e => lines.push(e.text));
         }
     });
   }
@@ -433,7 +522,7 @@ export function generateFinalDiagnosis(values: FormValues): string {
   const findingsToProcess = values.isTwin ? values.findings : [values.findings[0]];
 
   findingsToProcess.forEach((finding, index) => {
-    const findingLines = generateFinalDiagnosisForFinding(finding, values.isTwin, index, ga);
+    const findingLines = generateFinalDiagnosisForFinding(finding, values.isTwin, index, ga, values.clinicalMSF);
     lines.push(...findingLines);
     if (index < findingsToProcess.length - 1) lines.push('');
   });
@@ -441,46 +530,67 @@ export function generateFinalDiagnosis(values: FormValues): string {
   // Clinical Context Comments
   const comments: string[] = [];
   if (values.clinicalAbruption) {
-      comments.push("COMMENT FOR ABRUPTION: Although there is no evidence of abruption on pathologic examination of this placenta, the diagnosis is not excluded. The diagnosis of abruption is best made by the clinician at the time of delivery.");
+      comments.push("Although there is no evidence of abruption on pathologic examination of this placenta, the diagnosis is not excluded. The diagnosis of abruption is best made by the clinician at the time of delivery.");
   }
   if (values.clinicalPAS) {
-      comments.push("COMMENT FOR PAS: The clinical concern for placenta accreta spectrum is noted. [The basal plate is disrupted, possibly incomplete, however] no basal plate myometrial fibers are identified.");
+      comments.push("The clinical concern for placenta accreta spectrum is noted. [The basal plate is disrupted, possibly incomplete, however] no basal plate myometrial fibers are identified.");
   }
   if (values.clinicalIUFD) {
-      comments.push("COMMENT FOR IUFD: Based on isolated gross and histologic review of the placenta, a cause of demise could not be established.");
+      comments.push("Based on isolated gross and histologic review of the placenta, a cause of demise could not be established.");
   }
   if (values.clinicalIAI) {
-      comments.push("COMMENT FOR IAI: No significant acute inflammation is identified.");
+      comments.push("No significant acute inflammation is identified.");
+  }
+
+  // Meconium-associated vascular necrosis comment
+  const hasMAVN = findingsToProcess.some(f => f.umbilicalCord['meconium-associated-vascular-necrosis']);
+  if (hasMAVN) {
+      comments.push("Meconium associated myonecrosis of umbilical and/or chorionic vessels may be associated with significant adverse perinatal outcomes.");
   }
   
   // High grade chronic villitis comment
   const hasHighGradeVillitis = findingsToProcess.some(f => f.placentalVilli['high-grade-chronic-villitis']);
   if (hasHighGradeVillitis) {
-      comments.push("COMMENT FOR HIGH GRADE CHRONIC VILLITIS: [The pattern of inflammation (absence of neutrophils, plasma cells, granulomas, or abscesses; no viral cytopathic change) is most consistent with a villitis of unknown etiology (VUE), although an infectious villitis cannot be completely excluded.] Chronic villitis/VUE, (particularly when associated with avascular villi and perivillous fibrin deposition) has been associated with adverse outcomes, including fetal growth restriction, and can recur in 10-15% of subsequent pregnancies. Clinical correlation is recommended.");
+      comments.push("[The pattern of inflammation (absence of neutrophils, plasma cells, granulomas, or abscesses; no viral cytopathic change) is most consistent with a villitis of unknown etiology (VUE), although an infectious villitis cannot be completely excluded.] Chronic villitis/VUE, (particularly when associated with avascular villi and perivillous fibrin deposition) has been associated with adverse outcomes, including fetal growth restriction, and can recur in 10-15% of subsequent pregnancies. Clinical correlation is recommended.");
   }
 
   // CHIV Comment
   const hasCHIV = findingsToProcess.some(f => f.placentalVilli['chronic-histiocytic-intervillositis']);
   if (hasCHIV) {
-      comments.push("COMMENT FOR CHRONIC HISTIOCYTIC INTERVILLOSITIS: Chronic histiocytic intervillositis is associated with adverse pregnancy outcomes, including fetal growth restriction [and stillbirth]. [Can mention elevated serum alkaline phosphatase if present]. There is an increased risk of recurrence in future pregnancies of up to 50%. Clinical correlation and appropriate follow-up are recommended. Referral of the mother to maternal-fetal medicine prior to next pregnancy should be considered.");
+      comments.push("Chronic histiocytic intervillositis is associated with adverse pregnancy outcomes, including fetal growth restriction [and stillbirth]. [Can mention elevated serum alkaline phosphatase if present]. There is an increased risk of recurrence in future pregnancies of up to 50%. Clinical correlation and appropriate follow-up are recommended. Referral of the mother to maternal-fetal medicine prior to next pregnancy should be considered.");
+  }
+
+  // Massive perivillous fibrin deposition / maternal floor infarct comment
+  const hasMPVFDMFI = findingsToProcess.some(f => f.placentalVilli['massive-perivillous-fibrin'] || f.placentalVilli['maternal-floor-infarct']);
+  if (hasMPVFDMFI) {
+      comments.push("Massive perivillous fibrin deposition/maternal floor infarct is associated with significant perinatal morbidity and mortality, a high recurrence rate in future pregnancies and maternal thrombophilia/anti-phospholipid syndrome and autoimmune disorders. [It can also be rarely associated with infections...] Referral of the mother to maternal-fetal medicine prior to next pregnancy should be considered.");
   }
 
   // BPMF Comment
   const hasBPMF = findingsToProcess.some(f => f.maternalDecidua['basal-plate-myometrial-fibers']);
   if (hasBPMF) {
-      comments.push("COMMENT FOR BPMF: Adherent basal plate myometrial fibers (BPMF) are staged according to the Placenta Accreta Spectrum (PAS) Task Force criteria according to the presence (Stage 1) or absence (Stage 2) of intervening decidua. Stage 1 BPMF may be an incidental finding. Stage 2 BPMF may support a diagnosis of non-invasive PAS and may be associated with clinically significant PAS in future pregnancies. Ref: Hecht JL, Baergen R, Ernst LM, et al. Classification and reporting guidelines for the pathology diagnosis of placenta accreta spectrum (PAS) disorders: recommendations from an expert panel. Mod Pathol. 2020 Dec;33(12):2382-2396.");
+      comments.push("Adherent basal plate myometrial fibers (BPMF) are staged according to the Placenta Accreta Spectrum (PAS) Task Force criteria according to the presence (Stage 1) or absence (Stage 2) of intervening decidua. Stage 1 BPMF may be an incidental finding. Stage 2 BPMF may support a diagnosis of non-invasive PAS and may be associated with clinically significant PAS in future pregnancies. Ref: Hecht JL, Baergen R, Ernst LM, et al. Classification and reporting guidelines for the pathology diagnosis of placenta accreta spectrum (PAS) disorders: recommendations from an expert panel. Mod Pathol. 2020 Dec;33(12):2382-2396.");
   }
 
   // Villous dysmaturity comment
   const hasVillousDysmaturity = findingsToProcess.some(f => f.placentalVilli['villous-dysmaturity']);
   if (hasVillousDysmaturity) {
-      comments.push("COMMENT FOR VILLOUS DYSMATURITY: The villi demonstrate morphologic changes that include a mixture of delayed and accelerated maturation. These changes are associated with maternal diabetes and elevated BMI.");
+      comments.push("The villi demonstrate morphologic changes that include a mixture of delayed and accelerated maturation. These changes are associated with maternal diabetes and elevated BMI.");
+  }
+
+  // Sickled red blood cells comment
+  const hasSickledRBC = findingsToProcess.some(f => f.placentalVilli['sickled-red-blood-cells']);
+  if (hasSickledRBC) {
+      comments.push("Sickling of maternal red blood cells is present. Appropriate tests for hemoglobinopathy are recommended if not already performed.");
   }
 
   if (comments.length > 0) {
       lines.push('');
       lines.push('COMMENTS:');
-      comments.forEach(c => lines.push(c));
+      comments.forEach((c, i) => {
+          if (i > 0) lines.push('');
+          lines.push(c);
+      });
   }
 
   lines.push('');
