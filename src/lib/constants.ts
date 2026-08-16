@@ -149,7 +149,7 @@ export const compartments: Compartment[] = [
       { id: 'decidual-arteriopathy-mural-hypertrophy', name: 'Decidual arteriopathy (mural hypertrophy)', description: 'Abnormalities in maternal spiral arteries, including mural hypertrophy. A key feature of MVM.', patternId: 'MVM', reportingText: 'Decidual arteriopathy (mural hypertrophy of maternal vessels)' },
       { id: 'decidual-arteriopathy-no-remodeling', name: 'Decidual arteriopathy (no remodeling)', description: 'Failure of physiologic conversion of spiral arteries. A feature of MVM.', patternId: 'MVM', reportingText: 'Decidual arteriopathy (absence of spiral artery remodeling)' },
       { id: 'lymphoplasmacytic-deciduitis', name: 'Lymphoplasmacytic/plasma cell deciduitis', description: 'A heavy infiltration of lymphocytes and plasma cells in the basal plate (maternal decidua). A form of chronic inflammation.', patternId: 'CI' },
-      { id: 'basal-plate-myometrial-fibers', name: 'Basal plate myometrial fibers', description: 'Presence of myometrial fibers at the placental basal plate, relevant for placenta accreta spectrum.', patternId: 'OTHER' },
+      { id: 'basal-plate-myometrial-fibers', name: 'Basal plate myometrial fibers', description: 'Presence of myometrial fibers at the placental basal plate, relevant for placenta accreta spectrum (PAS). Staged per the 2020 Placenta Accreta Spectrum (PAS) Task Force criteria (Hecht et al., Mod Pathol 2020): Stage 1 = BPMF with intervening decidua (may be an incidental finding); Stage 2 = BPMF without intervening decidua (may support non-invasive PAS).', patternId: 'OTHER' },
     ],
   },
 ];

@@ -1075,7 +1075,22 @@ export function PlacentaPathfinder() {
                                                             </FormItem>
                                                           )}/>
                                                           <FormField control={form.control} name={`findings.${activeTwinIndex}.bpmfLength`} render={({ field }) => (
-                                                            <FormItem><FormLabel>Longest Length</FormLabel><FormControl><Input placeholder="e.g., 5 mm" {...field} /></FormControl></FormItem>
+                                                            <FormItem>
+                                                              <div className="flex items-center gap-1">
+                                                                <FormLabel>Longest Length</FormLabel>
+                                                                <Tooltip>
+                                                                  <TooltipTrigger asChild>
+                                                                    <Button type="button" variant="ghost" size="icon" className="h-5 w-5 p-0" onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}>
+                                                                      <Info className="h-3.5 w-3.5 text-muted-foreground" />
+                                                                    </Button>
+                                                                  </TooltipTrigger>
+                                                                  <TooltipContent>
+                                                                    <p className="max-w-xs">Linear dimension along the basal plate in the largest focus of BPMF in mm.</p>
+                                                                  </TooltipContent>
+                                                                </Tooltip>
+                                                              </div>
+                                                              <FormControl><Input placeholder="e.g., 5 mm" {...field} /></FormControl>
+                                                            </FormItem>
                                                           )}/>
                                                           <FormField control={form.control} name={`findings.${activeTwinIndex}.bpmfStage`} render={({ field }) => (
                                                             <FormItem><FormLabel>Highest Stage</FormLabel>

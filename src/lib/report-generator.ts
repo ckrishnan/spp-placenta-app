@@ -206,7 +206,7 @@ function generateMicroscopicForFinding(finding: Findings, isTwin: boolean, index
   return twinPrefix + parts.join('\n\n');
 }
 
-function generateFinalDiagnosisForFinding(finding: Findings, isTwin: boolean, index: number, ga: number, clinicalMSF: boolean): string[] {
+function generateFinalDiagnosisForFinding(finding: Findings, isTwin: boolean, index: number, ga: number, clinicalMSF: boolean, clinicalAbruption: boolean): string[] {
   const lines: string[] = [];
   const twinPrefix = isTwin ? `TWIN ${index === 0 ? 'A' : 'B'}:` : '';
   
@@ -221,6 +221,22 @@ function generateFinalDiagnosisForFinding(finding: Findings, isTwin: boolean, in
 
   // Meconium-related diagnoses are grouped together under their own header in the output.
   const meconiumIds = new Set(['pigment-laden-macrophages', 'meconium-chorionic-vasculitis', 'meconium-umbilical-vasculitis', 'meconium-associated-vascular-necrosis']);
+
+  // Acute chorioamnionitis family: MIR findings (subchorionitis/chorionitis/chorioamnionitis)
+  // and FIR findings (chorionic vasculitis, umbilical phlebitis/arteritis, necrotizing funisitis).
+  // When an MIR finding is selected they combine into one descriptive block; isolated FIR
+  // findings print as standalone diagnoses rather than an assumed "acute chorioamnionitis".
+  const chorioMirIds = ['acute-subchorionitis', 'acute-chorionitis', 'acute-chorioamnionitis'];
+  const chorioFirIds = ['chorionic-vasculitis', 'umbilical-phlebitis', 'umbilical-arteritis', 'necrotizing-funisitis'];
+  const chorioIds = new Set([...chorioMirIds, ...chorioFirIds]);
+  const selectedMir = chorioMirIds.filter(id => finding.membranes[id]);
+  const selectedFir = chorioFirIds.filter(id => finding.membranes[id] || finding.umbilicalCord[id]);
+
+  // Acute abruption is a clinical diagnosis and needs more than one supporting histologic
+  // feature; a single isolated feature (e.g. intravillous hemorrhage alone) prints standalone.
+  const aaFeatureIds = ['retroplacental-hematoma', 'intravillous-hemorrhage'];
+  const selectedAaFeatures = aaFeatureIds.filter(id => finding.placentalVilli[id]);
+  const hasAbruptionGroup = selectedAaFeatures.length >= 2;
 
   // Compartment alterations
   compartments.forEach(compartment => {
@@ -259,49 +275,7 @@ function generateFinalDiagnosisForFinding(finding: Findings, isTwin: boolean, in
                 return;
             }
             
-            if (id === 'acute-chorioamnionitis' || id === 'acute-subchorionitis' || id === 'acute-chorionitis') {
-                let diagnosisTitle = "";
-                
-                // MIR Title based on Matrix
-                const mirStage = finding.mirStage || '1';
-                const mirGrade = finding.mirGrade || '1';
-                
-                if (mirStage === '3') {
-                    diagnosisTitle = "Necrotizing acute chorioamnionitis";
-                } else if (mirStage === '2') {
-                    diagnosisTitle = mirGrade === '2' ? "Severe acute chorioamnionitis" : "Acute chorioamnionitis";
-                } else {
-                    // Stage 1
-                    const base = alteration.id === 'acute-chorionitis' ? "Acute chorionitis" : "Acute subchorionitis";
-                    diagnosisTitle = mirGrade === '2' ? `Severe ${base.toLowerCase()}` : base;
-                }
-                
-                // Add FIR component to title if present
-                if (finding.firStage) {
-                    const firStage = finding.firStage;
-                    let firLocation = "";
-                    if (firStage === '1') firLocation = "umbilical vein/chorionic plate vessels";
-                    else if (firStage === '2') firLocation = "umbilical arteries";
-                    else if (firStage === '3') firLocation = "umbilical vessels (necrotizing funisitis)";
-                    
-                    diagnosisTitle += ` [with fetal inflammatory response in ${firLocation}]`;
-                }
-                
-                diagnosisTitle = `-- ${diagnosisTitle}:`;
-                
-                const responseLines: string[] = [];
-                if (finding.mirStage) {
-                    responseLines.push(`Maternal inflammatory response, stage ${finding.mirStage}${finding.mirGrade ? `, grade ${finding.mirGrade}` : ''}`);
-                }
-                if (finding.firStage) {
-                    responseLines.push(`Fetal inflammatory response, stage ${finding.firStage}${finding.firGrade ? `, grade ${finding.firGrade}` : ''}`);
-                }
-                
-                const fullBlock = [diagnosisTitle, ...responseLines.map(l => `\t- ${l}`)].join('\n');
-                // Use null patternId to avoid grouping and keep it as a top-level block
-                findingsList.push({ patternId: null, text: fullBlock });
-                return;
-            }
+            if (chorioIds.has(id)) return; // handled by the combined acute chorio block below
 
             if (id === 'villous-infarct' && (finding.infarctSize || finding.infarctExtent)) {
                 const details: string[] = [];
@@ -335,12 +309,17 @@ function generateFinalDiagnosisForFinding(finding: Findings, isTwin: boolean, in
             if (id === 'basal-plate-myometrial-fibers' && (finding.bpmfFocality || finding.bpmfStage || finding.bpmfLength)) {
                 const details: string[] = [];
                 if (finding.bpmfFocality) details.push(finding.bpmfFocality);
+                if (finding.bpmfLength) details.push(`linear length of longest focus (mm): ${finding.bpmfLength}`);
                 if (finding.bpmfStage) details.push(`stage ${finding.bpmfStage}`);
-                if (finding.bpmfLength) details.push(finding.bpmfLength);
                 text = `Basal plate myometrial fibers, ${details.join(', ')}, see comment`;
             }
 
-            if (id === 'delayed-villous-maturation' && finding.dvmFocality) text += ` (${finding.dvmFocality})`;
+            if (id === 'delayed-villous-maturation') {
+                // Single non-redundant line (manuscript: "Delayed villous maturation, [focal/diffuse]")
+                const dvmText = finding.dvmFocality ? `Delayed villous maturation [${finding.dvmFocality}]` : 'Delayed villous maturation';
+                findingsList.push({ patternId: null, text: `-- ${dvmText}` });
+                return;
+            }
             
             if (id === 'villous-dysmaturity') {
                 // Independent line for dysmaturity
@@ -361,12 +340,66 @@ function generateFinalDiagnosisForFinding(finding: Findings, isTwin: boolean, in
                 text = `${extent} ${text.charAt(0).toLowerCase() + text.slice(1)}`;
             }
             
-            findingsList.push({ patternId: alteration.patternId, text: `- ${text}` });
+            // Abruption header requires >=2 supporting features; a single isolated feature
+            // (e.g. intravillous hemorrhage alone) prints as a standalone line.
+            const isAaFeature = id === 'retroplacental-hematoma' || id === 'intravillous-hemorrhage';
+            const pushPatternId = isAaFeature && !hasAbruptionGroup ? 'OTHER' : alteration.patternId;
+            findingsList.push({ patternId: pushPatternId, text: `- ${text}` });
           }
         }
       });
     }
   });
+
+  // Combined acute chorioamnionitis block: fold MIR + FIR findings into one descriptive block
+  if (selectedMir.length > 0 || selectedFir.length > 0) {
+    if (selectedMir.length > 0) {
+      const derivedMirStage = finding.membranes['acute-chorioamnionitis'] ? '2' : '1';
+      const mirStage = finding.mirStage || derivedMirStage;
+      const mirGrade = finding.mirGrade || '1';
+
+      let diagnosisTitle = '';
+      if (mirStage === '3') {
+        diagnosisTitle = 'Necrotizing acute chorioamnionitis';
+      } else if (mirStage === '2') {
+        diagnosisTitle = mirGrade === '2' ? 'Severe acute chorioamnionitis' : 'Acute chorioamnionitis';
+      } else {
+        const base = finding.membranes['acute-chorionitis'] ? 'Acute chorionitis' : 'Acute subchorionitis';
+        diagnosisTitle = mirGrade === '2' ? `Severe ${base.toLowerCase()}` : base;
+      }
+
+      // FIR localization derived from the selected FIR findings (manuscript verbiage)
+      const firLocations: string[] = [];
+      if (selectedFir.includes('chorionic-vasculitis')) firLocations.push('chorionic plate vessels');
+      if (selectedFir.includes('umbilical-phlebitis')) firLocations.push('umbilical vein');
+      if (selectedFir.includes('umbilical-arteritis')) firLocations.push('umbilical arteries');
+      if (selectedFir.includes('necrotizing-funisitis')) firLocations.push('umbilical vessels (necrotizing funisitis)');
+      if (firLocations.length > 0) {
+        diagnosisTitle += ` [with fetal inflammatory response in ${firLocations.join('/')}]`;
+      }
+
+      const responseLines: string[] = [];
+      responseLines.push(`Maternal inflammatory response, stage ${mirStage}${finding.mirGrade ? `, grade ${finding.mirGrade}` : ''}`);
+      if (selectedFir.length > 0) {
+        const derivedFirStage = selectedFir.includes('necrotizing-funisitis') ? '3' : selectedFir.includes('umbilical-arteritis') ? '2' : '1';
+        const firStage = finding.firStage || derivedFirStage;
+        responseLines.push(`Fetal inflammatory response, stage ${firStage}${finding.firGrade ? `, grade ${finding.firGrade}` : ''}`);
+      }
+
+      findingsList.push({ patternId: null, text: [`-- ${diagnosisTitle}:`, ...responseLines.map(l => `\t- ${l}`)].join('\n') });
+    } else {
+      // Isolated fetal inflammatory response without a maternal response: standalone diagnoses
+      const firLabels: Record<string, string> = {
+        'chorionic-vasculitis': 'Acute chorionic vasculitis',
+        'umbilical-phlebitis': 'Acute umbilical phlebitis',
+        'umbilical-arteritis': 'Acute umbilical arteritis',
+        'necrotizing-funisitis': 'Necrotizing funisitis',
+      };
+      selectedFir.forEach(id => {
+        findingsList.push({ patternId: null, text: `- ${firLabels[id] || id}` });
+      });
+    }
+  }
 
   // Check if FVM diagnosis is being made (after compartment alterations are added)
   const hasFVM = findingsList.some(f => f.patternId === 'FVM');
@@ -451,6 +484,10 @@ function generateFinalDiagnosisForFinding(finding: Findings, isTwin: boolean, in
         } else if (pid !== 'OTHER') {
             let header: string = injuryPatterns[pid as keyof typeof injuryPatterns].name;
             if (pid === 'MVM') header = "Maternal vascular malperfusion lesions";
+            if (pid === 'AA') {
+                // Hedged header; note the clinical history when the user flagged abruption
+                header = "Findings suggesting acute placental abruption" + (clinicalAbruption ? " [clinical history of abruption]" : "");
+            }
             if (pid === 'FVM') {
                 const highGradeIds = ['fetal-vessel-thrombosis', 'stem-vessel-obliteration'];
                 const isHighGrade = 
@@ -522,14 +559,15 @@ export function generateFinalDiagnosis(values: FormValues): string {
   const findingsToProcess = values.isTwin ? values.findings : [values.findings[0]];
 
   findingsToProcess.forEach((finding, index) => {
-    const findingLines = generateFinalDiagnosisForFinding(finding, values.isTwin, index, ga, values.clinicalMSF);
+    const findingLines = generateFinalDiagnosisForFinding(finding, values.isTwin, index, ga, values.clinicalMSF, values.clinicalAbruption);
     lines.push(...findingLines);
     if (index < findingsToProcess.length - 1) lines.push('');
   });
 
   // Clinical Context Comments
   const comments: string[] = [];
-  if (values.clinicalAbruption) {
+  const hasAbruptionFindings = findingsToProcess.some(f => f.placentalVilli['retroplacental-hematoma'] || f.placentalVilli['intravillous-hemorrhage']);
+  if (values.clinicalAbruption && !hasAbruptionFindings) {
       comments.push("Although there is no evidence of abruption on pathologic examination of this placenta, the diagnosis is not excluded. The diagnosis of abruption is best made by the clinician at the time of delivery.");
   }
   if (values.clinicalPAS) {
@@ -554,6 +592,12 @@ export function generateFinalDiagnosis(values: FormValues): string {
       comments.push("[The pattern of inflammation (absence of neutrophils, plasma cells, granulomas, or abscesses; no viral cytopathic change) is most consistent with a villitis of unknown etiology (VUE), although an infectious villitis cannot be completely excluded.] Chronic villitis/VUE, (particularly when associated with avascular villi and perivillous fibrin deposition) has been associated with adverse outcomes, including fetal growth restriction, and can recur in 10-15% of subsequent pregnancies. Clinical correlation is recommended.");
   }
 
+  // Eosinophilic/T-cell chorionic vasculitis comment
+  const hasETCV = findingsToProcess.some(f => f.placentalVilli['eosinophilic-t-cell-vasculitis']);
+  if (hasETCV) {
+      comments.push("Eosinophilic/T-cell chorionic vasculitis is of unclear clinical significance unless it is associated with a thrombus.");
+  }
+
   // CHIV Comment
   const hasCHIV = findingsToProcess.some(f => f.placentalVilli['chronic-histiocytic-intervillositis']);
   if (hasCHIV) {
@@ -563,7 +607,7 @@ export function generateFinalDiagnosis(values: FormValues): string {
   // Massive perivillous fibrin deposition / maternal floor infarct comment
   const hasMPVFDMFI = findingsToProcess.some(f => f.placentalVilli['massive-perivillous-fibrin'] || f.placentalVilli['maternal-floor-infarct']);
   if (hasMPVFDMFI) {
-      comments.push("Massive perivillous fibrin deposition/maternal floor infarct is associated with significant perinatal morbidity and mortality, a high recurrence rate in future pregnancies and maternal thrombophilia/anti-phospholipid syndrome and autoimmune disorders. [It can also be rarely associated with infections...] Referral of the mother to maternal-fetal medicine prior to next pregnancy should be considered.");
+      comments.push("Massive perivillous fibrin deposition/maternal floor infarct is associated with significant perinatal morbidity and mortality, a high recurrence rate in future pregnancies and maternal thrombophilia/anti-phospholipid syndrome and autoimmune disorders. [It can also be rarely associated with infections (CMV, coxsackie virus, syphilis, SARS CoV-2).] Referral of the mother to maternal-fetal-medicine prior to next pregnancy should be considered.");
   }
 
   // BPMF Comment

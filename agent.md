@@ -113,8 +113,8 @@ docs/
   - Header line in the selected format (`A. PLACENTA, DELIVERY AT 38 WEEKS:`, etc.).
   - Twin block: chorionicity / amnionicity.
   - For each finding: weight + percentile line, then findings grouped under **top-line category headers** using `injuryPatterns` (MVM → "Maternal vascular malperfusion lesions", FVM → "Fetal vascular malperfusion lesions [low/high grade]" where high grade is derived from fetal vessel thrombosis / stem vessel obliteration / large avascular villi). Headers print with `--`, supporting elements with tab + `-`; findings with `patternId: null` (e.g., the acute chorioamnionitis block) or `OTHER` are emitted as flat top-level bullets. Meconium-related findings (green staining, pigment-laden macrophages, meconium vasculitis, MAVN) are grouped together under a "Meconium-related findings" header in manuscript order.
-  - **Acute chorioamnionitis block**: builds a descriptive title from MIR stage/grade and FIR stage (e.g., "Necrotizing acute chorioamnionitis", "Severe acute chorioamnionitis [with fetal inflammatory response in umbilical arteries]") plus MIR/FIR stage+grade lines as tab-indented supporting elements.
-  - Detail interpolation: villous infarct size/extent, hematoma compression/infarction, thrombus type/location, intramural fibrin location, avascular villi / VSVK focus size, BPMF focality/stage/length, DVM focality, chronic villitis extent (extent-first: "Patchy high grade chronic villitis").
+  - **Acute chorioamnionitis block**: combines the selected MIR finding (subchorionitis/chorionitis/chorioamnionitis) with any selected FIR findings (chorionic vasculitis, umbilical phlebitis/arteritis, necrotizing funisitis) into one descriptive title with tab-indented MIR/FIR stage+grade lines, e.g. "-- Acute chorionitis [with fetal inflammatory response in chorionic plate vessels]:" + "Maternal inflammatory response, stage 1" + "Fetal inflammatory response, stage 1". An isolated FIR finding without an MIR finding prints as a standalone diagnosis (e.g. "- Acute umbilical phlebitis") rather than an assumed acute chorioamnionitis.
+  - Detail interpolation: villous infarct size/extent, hematoma compression/infarction, thrombus type/location, intramural fibrin location, avascular villi / VSVK focus size, BPMF focality/length (labeled "linear length of longest focus (mm)")/stage, DVM focality, chronic villitis extent (extent-first: "Patchy high grade chronic villitis").
   - Gross findings appended; FVM-related gross ids (long cord, hypercoiled, true knot, marginal/velamentous insertion, cord stricture, thin cord, tethered cord) are grouped under FVM **only if** an FVM finding is present.
   - **Comments** appended under `COMMENTS:` when triggered (see §6), separated by blank lines.
   - Footer: Pinar reference citation.
@@ -151,13 +151,13 @@ The app follows the manuscript's **disease-based, table-style template** with a 
 
 | Manuscript category | App representation |
 | --- | --- |
-| Acute chorioamnionitis (staging/grading) | `AC` pattern; MIR stage/grade + FIR stage/grade selects; descriptive title block; optional bacteria/Gram/GMS. No-IAI comment via `clinicalIAI`. |
+| Acute chorioamnionitis (staging/grading) | MIR findings + FIR findings combined into one descriptive block (e.g. "-- Acute chorionitis [with fetal inflammatory response in chorionic plate vessels]:" with MIR/FIR stage+grade lines); MIR stage/grade + FIR stage/grade selects; optional bacteria/Gram/GMS. Isolated FIR without MIR prints as a standalone diagnosis. No-IAI comment via `clinicalIAI`. |
 | Chronic inflammatory lesions | `CI` pattern (chronic villitis low/high grade, basal villitis, chronic chorioamnionitis, deciduitis, Eo/T-cell vasculitis, histiocytic hyperplasia). High-grade villitis comment auto-added. |
 | MVM | `MVM` header; accelerated maturation, distal villous hypoplasia, agglutination, infarct (±size/extent), infarction hematoma, decidual arteriopathy subtypes. |
 | FVM | `FVM` header w/ low/high grade derivation; thrombus, intramural fibrin, avascular villi, VSVK, stem vessel obliteration; gross cord "at-risk" lesions grouped under FVM when FVM present. |
-| Acute abruption | `AA`; retroplacental hematoma (± compression/infarction), intravillous hemorrhage; `clinicalAbruption` comment. |
+| Acute abruption | `AA` requires ≥2 supporting features (retroplacental hematoma, intravillous hemorrhage) to form the hedged header "Findings suggesting acute placental abruption" (+ " [clinical history of abruption]" when `clinicalAbruption`); a single isolated feature prints standalone. `clinicalAbruption` "no evidence" comment only when no abruption findings selected. |
 | Chronic marginal abruption ("2 of 3") | Gross checkbox `circumvallateMembraneInsertion` + `remote-marginal-hematoma` + `chorioamniotic-hemosiderosis`; **no "2 of 3" logic is enforced** — noted as a gap. |
-| BPMF / PAS | `maternalDecidua` alterations + BPMF focality/stage/length (focality now emitted: "Basal plate myometrial fibers, focal, stage 2, 5 mm, see comment"); PAS comment; BPMF reference comment. |
+| BPMF / PAS | `maternalDecidua` alterations + BPMF focality/stage/length (length emitted as "linear length of longest focus (mm): …"); the BPMF info box defines stages 1/2 (Hecht et al. 2020) and the Longest Length field has an info tooltip; PAS comment; BPMF reference comment. |
 | Increased fetal NRBCs | alteration with the ≥1 NRBC/40x definition in its description. |
 | Intervillous thrombus | standalone `OTHER` bullet. |
 | Patchy / diffuse villous edema | `OTHER` bullets. |
@@ -165,7 +165,7 @@ The app follows the manuscript's **disease-based, table-style template** with a 
 | Villous capillary lesions (chorangiosis rule of 10s, chorangiomatosis, chorangioma) | `VCL` pattern. |
 | Perivillous fibrin (Katzman–Genest) / MPVFD / MFI | `OTHER` bullets; inline UI reminder; **MPVFD/MFI recurrence comment auto-added**. |
 | Chronic histiocytic intervillositis | `CI` alteration + auto comment. |
-| DVM / villous dysmaturity | `DVM` pattern; focality select; dysmaturity separate line + comment. |
+| DVM / villous dysmaturity | `DVM` pattern; focality select. DVM prints as a single line "-- Delayed villous maturation [focal/diffuse]" (no redundant header+item); dysmaturity separate line + comment. |
 | IUFD | `clinicalIUFD` comment ("cause of demise could not be established"). |
 | Specific infections / sickled RBCs | specific-infections card + sickled RBCs bullet. |
 | Twins | Twin A/B tabs, chorionicity/amnionicity, per-twin findings. |
@@ -188,7 +188,7 @@ The app follows the manuscript's **disease-based, table-style template** with a 
 - Alteration `id`s are kebab-case and used as the single source of truth across `constants.ts`, `schema.ts`, `atlas.ts`, and `report-generator.ts` — keep them in sync.
 - Compartment ids: `umbilicalCord`, `membranes`, `placentalVilli`, `maternalDecidua` (atlas keys and modal grouping rely on `"<compartmentId>:<alterationId>"`).
 - Add any new injury-pattern background classes to the Tailwind **safelist** (`tailwind.config.ts`) or the colors won't survive the build.
-- New recommended comments belong in `generateFinalDiagnosis` under the `COMMENTS:` block, gated on the same selections that trigger the UI (e.g., `high-grade-chronic-villitis`, `chronic-histiocytic-intervillositis`, `basal-plate-myometrial-fibers`, `villous-dysmaturity`, `meconium-associated-vascular-necrosis`, `massive-perivillous-fibrin`/`maternal-floor-infarct`, `clinical*` flags).
+- New recommended comments belong in `generateFinalDiagnosis` under the `COMMENTS:` block, gated on the same selections that trigger the UI (e.g., `high-grade-chronic-villitis`, `eosinophilic-t-cell-vasculitis`, `chronic-histiocytic-intervillositis`, `basal-plate-myometrial-fibers`, `villous-dysmaturity`, `meconium-associated-vascular-necrosis`, `massive-perivillous-fibrin`/`maternal-floor-infarct`, `clinical*` flags).
 - Report output style (per the manuscript style guide): **main injury-pattern headers use `--`** (e.g., `-- Maternal vascular malperfusion lesions:`), **supporting elements are tab + single dash** (`\t- ...`), standalone/OTHER diagnoses use a single dash (`- ...`), and **multiple comments are separated by a blank line**. Chronic villitis is emitted extent-first ("Patchy high grade chronic villitis").
 - Preserve the manuscript's exact diagnostic verbiage when extending `reportingText` / comment strings; prefer the manuscript over paraphrase.
 
