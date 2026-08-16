@@ -3,7 +3,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Copy, Info, Loader2, Sparkles, Bug } from "lucide-react";
+import { Copy, Info, Loader2, Sparkles, Bug, BookImage } from "lucide-react";
 import Image from "next/image";
 import { useState, useTransition, useEffect } from "react";
 import { useForm } from "react-hook-form";
@@ -882,14 +882,28 @@ export function PlacentaPathfinder() {
                                                                 <Info className="h-4 w-4 text-muted-foreground cursor-pointer" />
                                                                 </Button>
                                                             </PopoverTrigger>
-                                                            <PopoverContent side="top" className="w-80" align="start">
+                                                            <PopoverContent side="top" className="w-96 max-w-[calc(100vw-2rem)]" align="start">
                                                                 <div className="grid gap-4">
                                                                     <div className="space-y-2">
                                                                         <h3 className="font-medium leading-none">{alteration.name}</h3>
-                                                                        <p className="text-sm text-muted-foreground">
+                                                                        <p className="text-sm text-muted-foreground whitespace-pre-line max-h-56 overflow-y-auto pr-1 leading-relaxed">
                                                                             {alteration.description}
                                                                         </p>
                                                                     </div>
+                                                                    {(alteration.id === 'acute-chorioamnionitis' || alteration.id === 'acute-chorionitis' || alteration.id === 'acute-subchorionitis') && (
+                                                                        <Button
+                                                                            type="button"
+                                                                            variant="outline"
+                                                                            size="sm"
+                                                                            className="w-full"
+                                                                            onClick={() => {
+                                                                                window.dispatchEvent(new CustomEvent("open-atlas-chapter", { detail: "acute chorioamnionitis" }));
+                                                                            }}
+                                                                        >
+                                                                            <BookImage className="mr-2 h-4 w-4" />
+                                                                            View MIR/FIR staging images in the atlas
+                                                                        </Button>
+                                                                    )}
                                                                     {images && images.length > 0 ? (
                                                                         <Carousel className="w-full relative">
                                                                         <CarouselContent>

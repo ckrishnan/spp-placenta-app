@@ -64,6 +64,19 @@ export function AtlasModal() {
     }
   }, []);
 
+  // Let other parts of the app open the atlas at a specific chapter
+  // (e.g. the acute chorioamnionitis info boxes link to MIR/FIR images).
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const chapter = (e as CustomEvent<string>).detail;
+      if (chapter) setActiveChapter(chapter);
+      setOpen(true);
+      loadChapters();
+    };
+    window.addEventListener("open-atlas-chapter", handler);
+    return () => window.removeEventListener("open-atlas-chapter", handler);
+  }, [loadChapters]);
+
   // Fall back to the first chapter if the active one is missing.
   const currentChapter =
     activeChapter && chapters.some((c) => c.folder === activeChapter)
