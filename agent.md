@@ -2,6 +2,13 @@
 
 > Working document for AI agents and maintainers. Describes the scope, stack, architecture, data flow, and the image-atlas pipeline. Domain reference: **"Standardized Placental Pathology Reporting: Improving Quality and Clinical Utility"** (SPP Placental Pathology Reporting Task Force) — see `docs/Standardized Placental Pathology Reporting Manuscript_agent.txt` and `placenta app instructions.md`.
 
+## 0. Core important instructions for AI agents working on this app
+
+- Be surgical in any edits made - less is more, and fix only what is broken
+- If a decision requires more input, ask the user first before making changes
+- Keep within the existing tech stack before suggesting code that requires additional new code types
+- Verify edits meet the user's requests and check for errors before completing. 
+
 ## 1. What this app does (Scope)
 
 Placenta Pathfinder is a single-page **Next.js (App Router) client app** that helps a (typically general) pathologist assemble a **standardized, plain-text placental pathology report** from checkboxes and short inputs. It is a **front-end-only, deterministic template generator** — there is **no AI/LLM call and no backend** involved in report generation. All output is produced locally by `src/lib/report-generator.ts`.
@@ -186,3 +193,4 @@ The app follows the manuscript's **disease-based, table-style template** with a 
 - Add any new injury-pattern background classes to the Tailwind **safelist** (`tailwind.config.ts`) or the colors won't survive the build.
 - New recommended comments belong in `generateFinalDiagnosis` under the `COMMENTS:` block, gated on the same selections that trigger the UI (e.g., `high-grade-chronic-villitis`, `chronic-histiocytic-intervillositis`, `basal-plate-myometrial-fibers`, `villous-dysmaturity`, `clinical*` flags).
 - Preserve the manuscript's exact diagnostic verbiage when extending `reportingText` / comment strings; prefer the manuscript over paraphrase.
+

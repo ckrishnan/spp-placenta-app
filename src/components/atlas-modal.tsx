@@ -1,8 +1,15 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type PointerEvent as ReactPointerEvent,
+} from "react";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogHeader,
@@ -16,7 +23,16 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { BookImage, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
+import {
+  BookImage,
+  ChevronLeft,
+  ChevronRight,
+  Loader2,
+  RotateCcw,
+  X,
+  ZoomIn,
+  ZoomOut,
+} from "lucide-react";
 import Image from "next/image";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import type { AtlasChapter, AtlasImage } from "@/lib/atlas-types";
@@ -67,6 +83,122 @@ export function AtlasModal() {
     if (newIndex < 0) newIndex = categoryImages.length - 1;
     if (newIndex >= categoryImages.length) newIndex = 0;
     setSelectedImage(categoryImages[newIndex]);
+  };
+
+  const currentImageIndex = selectedImage
+    ? Math.max(0, categoryImages.findIndex((img) => img.id === selectedImage.id))
+    : 0;
+
+  // ---- Full-image zoom & pan ----
+  const MIN_SCALE = 1;
+  const MAX_SCALE = 6;
+  const clamp = (v: number, min: number, max: number) => Math.min(max, Math.max(min, v));
+
+  const [scale, setScale] = useState(1);
+  const [offset, setOffset] = useState({ x: 0, y: 0 });
+  const [dragging, setDragging] = useState<{
+    startX: number;
+    startY: number;
+    offsetX: number;
+    offsetY: number;
+  } | null>(null);
+  const zoomRef = useRef<HTMLDivElement | null>(null);
+
+  const scaleRef = useRef(scale);
+  const offsetRef = useRef(offset);
+  useEffect(() => {
+    scaleRef.current = scale;
+  }, [scale]);
+  useEffect(() => {
+    offsetRef.current = offset;
+  }, [offset]);
+
+  const resetZoom = () => {
+    setScale(1);
+    setOffset({ x: 0, y: 0 });
+  };
+
+  // Reset zoom whenever a new image is shown.
+  useEffect(() => {
+    resetZoom();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedImage?.id]);
+
+  // Native wheel listener (non-passive so we can preventDefault page scroll).
+  useEffect(() => {
+    const el = zoomRef.current;
+    if (!el) return;
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      const rect = el.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+      const px = e.clientX - cx;
+      const py = e.clientY - cy;
+      const curScale = scaleRef.current;
+      const curOffset = offsetRef.current;
+      const factor = e.deltaY < 0 ? 1.25 : 0.8;
+      const next = clamp(curScale * factor, MIN_SCALE, MAX_SCALE);
+      if (next === 1) {
+        setScale(1);
+        setOffset({ x: 0, y: 0 });
+        return;
+      }
+      const wx = (px - curOffset.x) / curScale;
+      const wy = (py - curOffset.y) / curScale;
+      setScale(next);
+      setOffset({ x: px - wx * next, y: py - wy * next });
+    };
+    el.addEventListener("wheel", onWheel, { passive: false });
+    return () => el.removeEventListener("wheel", onWheel);
+  }, [isFullImageOpen, selectedImage?.id]);
+
+  const zoomBy = (factor: number) => {
+    const next = clamp(scale * factor, MIN_SCALE, MAX_SCALE);
+    if (next === 1) {
+      resetZoom();
+      return;
+    }
+    const k = next / scale;
+    setScale(next);
+    setOffset((o) => ({ x: o.x * k, y: o.y * k }));
+  };
+
+  const handlePointerDown = (e: ReactPointerEvent<HTMLDivElement>) => {
+    if (scale <= 1) return;
+    e.currentTarget.setPointerCapture?.(e.pointerId);
+    setDragging({
+      startX: e.clientX,
+      startY: e.clientY,
+      offsetX: offset.x,
+      offsetY: offset.y,
+    });
+  };
+
+  const handlePointerMove = (e: ReactPointerEvent<HTMLDivElement>) => {
+    if (!dragging) return;
+    const el = zoomRef.current;
+    let nx = dragging.offsetX + (e.clientX - dragging.startX);
+    let ny = dragging.offsetY + (e.clientY - dragging.startY);
+    if (el) {
+      const r = el.getBoundingClientRect();
+      const maxX = (r.width * (scale - 1)) / 2;
+      const maxY = (r.height * (scale - 1)) / 2;
+      nx = clamp(nx, -maxX, maxX);
+      ny = clamp(ny, -maxY, maxY);
+    }
+    setOffset({ x: nx, y: ny });
+  };
+
+  const handlePointerUp = () => setDragging(null);
+
+  const handleDoubleClick = () => {
+    if (scale > 1) {
+      resetZoom();
+    } else {
+      setScale(2.5);
+      setOffset({ x: 0, y: 0 });
+    }
   };
 
   const showSpinner = loading && chapters.length === 0;
@@ -154,27 +286,125 @@ export function AtlasModal() {
         </div>
       </DialogContent>
 
-      <Dialog open={isFullImageOpen} onOpenChange={setIsFullImageOpen}>
-        <DialogContent className="max-w-5xl p-0 overflow-hidden border-none bg-black/90">
+      <Dialog
+        open={isFullImageOpen}
+        onOpenChange={(nextOpen) => {
+          setIsFullImageOpen(nextOpen);
+          if (!nextOpen) resetZoom();
+        }}
+      >
+        <DialogContent
+          hideCloseButton
+          className="max-w-[96vw] max-h-[94svh] w-full p-0 overflow-hidden border-none bg-black/90"
+        >
           <DialogTitle className="sr-only">Full Image View</DialogTitle>
           {selectedImage && (
-            <div className="relative w-full h-full flex flex-col items-center justify-center p-4">
-              <div className="text-white text-lg mb-2 font-medium">{selectedImage.description}</div>
-              <div className="relative aspect-video w-full flex-1">
-                <Image
-                  src={selectedImage.imageUrl}
-                  alt={selectedImage.description}
-                  fill
-                  className="object-contain"
-                />
+            <div className="flex h-[94svh] max-h-[94svh] w-full flex-col">
+              {/* Top bar: description + zoom controls + close */}
+              <div className="flex items-center justify-between gap-3 p-3 pr-2 text-white">
+                <div className="min-w-0">
+                  <div className="truncate text-base font-medium">
+                    {selectedImage.description}
+                  </div>
+                  <div className="truncate text-xs text-white/60">
+                    {selectedImage.fileName}
+                  </div>
+                </div>
+                <div className="flex shrink-0 items-center gap-2">
+                  <div className="flex items-center gap-1 rounded-lg bg-white/10 p-1">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-white"
+                      onClick={() => zoomBy(0.8)}
+                      aria-label="Zoom out"
+                    >
+                      <ZoomOut className="h-4 w-4" />
+                    </Button>
+                    <span className="w-12 text-center text-xs tabular-nums">
+                      {Math.round(scale * 100)}%
+                    </span>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-white"
+                      onClick={() => zoomBy(1.25)}
+                      aria-label="Zoom in"
+                    >
+                      <ZoomIn className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-white"
+                      onClick={resetZoom}
+                      aria-label="Reset zoom"
+                    >
+                      <RotateCcw className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  <DialogClose asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      aria-label="Close viewer"
+                      className="h-9 w-9 shrink-0 rounded-full bg-white/15 text-white hover:bg-white/30 hover:text-white"
+                    >
+                      <X className="h-5 w-5" />
+                    </Button>
+                  </DialogClose>
+                </div>
               </div>
-              <div className="flex gap-4 mt-4">
-                <Button variant="ghost" className="text-white" onClick={() => navigate("prev")}>
-                  <ChevronLeft />
-                </Button>
-                <Button variant="ghost" className="text-white" onClick={() => navigate("next")}>
-                  <ChevronRight />
-                </Button>
+
+              {/* Zoomable / pannable image area */}
+              <div
+                ref={zoomRef}
+                className="relative min-h-0 flex-1 overflow-hidden touch-none select-none"
+                style={{
+                  cursor: scale > 1 ? (dragging ? "grabbing" : "grab") : "zoom-in",
+                }}
+                onPointerDown={handlePointerDown}
+                onPointerMove={handlePointerMove}
+                onPointerUp={handlePointerUp}
+                onPointerLeave={handlePointerUp}
+                onDoubleClick={handleDoubleClick}
+              >
+                <div
+                  className="absolute inset-0"
+                  style={{
+                    transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})`,
+                  }}
+                >
+                  <Image
+                    src={selectedImage.imageUrl}
+                    alt={selectedImage.description}
+                    fill
+                    draggable={false}
+                    className="object-contain"
+                    sizes="96vw"
+                  />
+                </div>
+              </div>
+
+              {/* Bottom bar: hint + prev/next */}
+              <div className="flex items-center justify-between gap-4 p-3 text-white">
+                <span className="hidden text-xs text-white/60 sm:inline">
+                  Scroll to zoom · drag to pan · double-click to reset
+                </span>
+                <span className="text-xs text-white/60 sm:hidden">Zoom / pan enabled</span>
+                <div className="flex items-center gap-2">
+                  <Button variant="ghost" className="text-white" onClick={() => navigate("prev")}>
+                    <ChevronLeft className="h-4 w-4" />
+                    <span className="ml-1 hidden sm:inline">Prev</span>
+                  </Button>
+                  <span className="min-w-[3ch] text-center text-xs tabular-nums text-white/60">
+                    {currentImageIndex + 1}/{categoryImages.length}
+                  </span>
+                  <Button variant="ghost" className="text-white" onClick={() => navigate("next")}>
+                    <span className="mr-1 hidden sm:inline">Next</span>
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
             </div>
           )}
