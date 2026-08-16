@@ -1,0 +1,52 @@
+{
+  "_instructions": [
+    "--- HOW TO ADD AND LINK IMAGES ---",
+    "This file is a manifest for all images used in the Picture Atlas and tooltips.",
+    "Yes, the Picture Atlas updates automatically when you edit this file and `src/lib/constants.ts`.",
+    "",
+    "Step 1: Add your image file.",
+    "Place your new image (e.g., 'my-new-image.jpg') into the `public/images/atlas/` directory.",
+    "",
+    "Step 2: Add a new image entry below.",
+    "Inside the `placeholderImages` array, add a new JSON object for your image. It must have:",
+    "  - `id`: A unique string to identify this image (e.g., 'my-new-image').",
+    "  - `description`: Text that describes the image.",
+    "  - `imageUrl`: The path to your image. This MUST start with '/images/atlas/'. (e.g., '/images/atlas/my-new-image.jpg').",
+    "  - `imageHint`: One or two keywords for AI image search.",
+    "",
+    "Step 3: Link the image to a lesion.",
+    "Open `src/lib/constants.ts`. Find the lesion you want to associate the image with.",
+    "Add the `id` from Step 2 to its `imageIds` array.",
+    "Example in `src/lib/constants.ts`:",
+    "  `imageIds: ['uc-2-vessel-cord', 'uc-2-vessel-cord-gross', 'my-new-image']`",
+    "",
+    "You can add as many image IDs as you need to the `imageIds` array for any lesion."
+  ],
+  
+  "placeholderImages": [
+    {
+      "id": "normal-ved19",
+      "imageUrl": "/images/atlas/normal/VED19.jpg",
+      "imageHint": "Normal term villi - high power",
+      "description": "Normal term villi"
+    },
+    {
+      "id": "pjk2-normal-chorionic-plate",
+      "imageUrl": "/images/atlas/normal/PJK2_Normal_Chorionic_Plate.JPG",
+      "imageHint": "Normal chorionic plate",
+      "description": "Normal chorionic plate"
+    },
+    {
+      "id": "pjk4-normal-basal-plate",
+      "imageUrl": "/images/atlas/normal/PJK4_Normal_Basal_Plate.JPG",
+      "imageHint": "Normal basal plate",
+      "description": "Normal basal plate"
+    },
+    {
+      "id": "pjk6-normal-umbilical-cord",
+      "imageUrl": "/images/atlas/normal/PJK6_Normal_Umbilical_Cord.JPG",
+      "imageHint": "Normal umbilical cord",
+      "description": "Normal umbilical cord"
+    }
+  ]
+}

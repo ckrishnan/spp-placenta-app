@@ -1,0 +1,10 @@
+Place your atlas images in this directory.
+
+Then, update `src/lib/placeholder-images.json` to point to your new image files. For example:
+
+{
+  "id": "uc-2-vessel-cord",
+  "description": "Cross section of a two-vessel umbilical cord, showing one artery and one vein.",
+  "imageUrl": "/images/atlas/uc-2-vessel-cord.jpg",
+  "imageHint": "umbilical cord"
+}
