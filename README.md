@@ -1,5 +1,5 @@
-# Firebase Studio
+# Placenta pathology reporting tool
 
-This is a NextJS starter in Firebase Studio.
+Brought to you by the Society for pediatric pathology, placental reporting taskforce
 
-To get started, take a look at src/app/page.tsx.
+
