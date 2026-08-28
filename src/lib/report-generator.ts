@@ -382,7 +382,9 @@ function generateFinalDiagnosisForFinding(finding: Findings, isTwin: boolean, in
       let diagnosisTitle = '';
       if (mirStage === '3') {
         diagnosisTitle = 'Necrotizing acute chorioamnionitis';
-      } else if (mirStage === '2') {
+      } else if (mirStage === '2' || finding.membranes['acute-chorioamnionitis']) {
+        // Title is driven by the selected finding; the manual MIR stage is reported
+        // in the "Maternal inflammatory response" line below.
         diagnosisTitle = mirGrade === '2' ? 'Severe acute chorioamnionitis' : 'Acute chorioamnionitis';
       } else {
         const base = finding.membranes['acute-chorionitis'] ? 'Acute chorionitis' : 'Acute subchorionitis';

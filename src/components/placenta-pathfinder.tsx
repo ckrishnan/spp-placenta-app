@@ -175,49 +175,27 @@ export function PlacentaPathfinder() {
   const { watch } = form;
   const isTwin = watch("isTwin");
 
-  // Watch the active twin's finding so we can validate acute chorio MIR/FIR staging
-  // against the findings the user has actually selected.
+  // Watch the active twin's finding so we can show the MIR/FIR stages calculated
+  // from the selected findings (the user remains free to choose any stage).
   const activeFinding = useWatch({ control: form.control, name: `findings.${activeTwinIndex}` }) as Findings | undefined;
 
-  // Expected stages derived from the selected membrane/cord findings.
+  // Stages calculated from the selected membrane/cord findings.
   // MIR: 1 = subchorionitis/chorionitis, 2 = chorioamnionitis, 3 = necrotizing chorioamnionitis.
   // FIR: 1 = chorionic vasculitis/phlebitis, 2 = arteritis, 3 = necrotizing funisitis.
   const mirChorioamnionitis = !!activeFinding?.membranes?.['acute-chorioamnionitis'];
-  const hasMirFinding =
-      mirChorioamnionitis ||
-      !!activeFinding?.membranes?.['acute-chorionitis'] ||
-      !!activeFinding?.membranes?.['acute-subchorionitis'];
   const derivedMirStage = mirChorioamnionitis ? '2' : '1';
-  const mirAllowedStages = mirChorioamnionitis ? ['2', '3'] : ['1'];
 
   const hasFirNecrotizing = !!activeFinding?.umbilicalCord?.['necrotizing-funisitis'];
   const hasFirArteritis = !!activeFinding?.umbilicalCord?.['umbilical-arteritis'];
   const hasFirPhlebitisOrVasculitis =
       !!activeFinding?.umbilicalCord?.['umbilical-phlebitis'] ||
       !!activeFinding?.membranes?.['chorionic-vasculitis'];
-  const hasFirFinding = hasFirNecrotizing || hasFirArteritis || hasFirPhlebitisOrVasculitis;
   const derivedFirStage = hasFirNecrotizing ? '3' : hasFirArteritis ? '2' : hasFirPhlebitisOrVasculitis ? '1' : null;
-  const firAllowedStages = hasFirNecrotizing ? ['3'] : hasFirArteritis ? ['2'] : hasFirPhlebitisOrVasculitis ? ['1'] : ['1', '2', '3'];
 
-  // Internal validation: keep MIR/FIR stages consistent with the selected findings.
-  // Conflicting options are disabled in the dropdowns below, and any previously entered
-  // stage that no longer matches is auto-corrected (or cleared once the finding is removed).
-  useEffect(() => {
-    if (activeFinding?.mirStage) {
-      if (!hasMirFinding) {
-        form.setValue(`findings.${activeTwinIndex}.mirStage`, '');
-      } else if (!mirAllowedStages.includes(activeFinding.mirStage)) {
-        form.setValue(`findings.${activeTwinIndex}.mirStage`, derivedMirStage);
-      }
-    }
-    if (activeFinding?.firStage) {
-      if (!hasFirFinding) {
-        form.setValue(`findings.${activeTwinIndex}.firStage`, '');
-      } else if (derivedFirStage && !firAllowedStages.includes(activeFinding.firStage)) {
-        form.setValue(`findings.${activeTwinIndex}.firStage`, derivedFirStage);
-      }
-    }
-  }, [activeFinding, activeTwinIndex, hasMirFinding, hasFirFinding, mirChorioamnionitis, hasFirNecrotizing, hasFirArteritis, hasFirPhlebitisOrVasculitis, derivedMirStage, derivedFirStage, form]);
+  // Non-blocking guidance: note when a manually selected stage differs from the
+  // calculated stage so users can catch mismatches without being prevented from choosing.
+  const mirStageMismatch = !!activeFinding?.mirStage && activeFinding.mirStage !== derivedMirStage;
+  const firStageMismatch = !!derivedFirStage && !!activeFinding?.firStage && activeFinding.firStage !== derivedFirStage;
 
   // Load the persisted weight reference preference (survives browser close via localStorage).
   useEffect(() => {
@@ -1074,9 +1052,9 @@ export function PlacentaPathfinder() {
                                                                     <SelectTrigger><SelectValue placeholder="Stage" /></SelectTrigger>
                                                                   </FormControl>
                                                                   <SelectContent>
-                                                                    <SelectItem value="1" disabled={!mirAllowedStages.includes('1')}>1</SelectItem>
-                                                                    <SelectItem value="2" disabled={!mirAllowedStages.includes('2')}>2</SelectItem>
-                                                                    <SelectItem value="3" disabled={!mirAllowedStages.includes('3')}>3</SelectItem>
+                                                                    <SelectItem value="1">1</SelectItem>
+                                                                    <SelectItem value="2">2</SelectItem>
+                                                                    <SelectItem value="3">3</SelectItem>
                                                                   </SelectContent>
                                                                 </Select>
                                                                 <FormMessage /></FormItem>
@@ -1098,9 +1076,9 @@ export function PlacentaPathfinder() {
                                                                     <SelectTrigger><SelectValue placeholder="Stage" /></SelectTrigger>
                                                                   </FormControl>
                                                                   <SelectContent>
-                                                                    <SelectItem value="1" disabled={!firAllowedStages.includes('1')}>1</SelectItem>
-                                                                    <SelectItem value="2" disabled={!firAllowedStages.includes('2')}>2</SelectItem>
-                                                                    <SelectItem value="3" disabled={!firAllowedStages.includes('3')}>3</SelectItem>
+                                                                    <SelectItem value="1">1</SelectItem>
+                                                                    <SelectItem value="2">2</SelectItem>
+                                                                    <SelectItem value="3">3</SelectItem>
                                                                   </SelectContent>
                                                                 </Select>
                                                                 <FormMessage /></FormItem>
@@ -1119,10 +1097,16 @@ export function PlacentaPathfinder() {
                                                         <div className="rounded-md border border-border bg-muted/40 px-3 py-2 text-xs text-muted-foreground space-y-1">
                                                             <p className="font-medium">Staging</p>
                                                             <p>
-                                                                MIR stage: <strong>{activeFinding?.mirStage || derivedMirStage}</strong>
-                                                                {derivedFirStage ? <> · FIR stage: <strong>{activeFinding?.firStage || derivedFirStage}</strong></> : null}
+                                                                Calculated from your findings — MIR stage: <strong>{derivedMirStage}</strong>
+                                                                {derivedFirStage ? <> · FIR stage: <strong>{derivedFirStage}</strong></> : null}
                                                             </p>
-                                                            <p>Stages are kept consistent with your selected findings — conflicting options are disabled and mismatches are auto-corrected.</p>
+                                                            {mirStageMismatch && (
+                                                                <p>Note: your selected MIR stage ({activeFinding?.mirStage}) differs from the calculated stage ({derivedMirStage}).</p>
+                                                            )}
+                                                            {firStageMismatch && (
+                                                                <p>Note: your selected FIR stage ({activeFinding?.firStage}) differs from the calculated stage ({derivedFirStage}).</p>
+                                                            )}
+                                                            <p>You can select any stage; the calculated values above are based on the findings you&apos;ve marked.</p>
                                                         </div>
                                                         <div className="space-y-2">
                                                             <FormField control={form.control} name={`findings.${activeTwinIndex}.bacteriaPresent`} render={({ field }) => (
