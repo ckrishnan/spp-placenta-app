@@ -1,5 +1,8 @@
 // Reference data based on Pinar, H. et al. "Reference values for singleton and twin placenta weights." (2012).
 // And supplemented by user-provided data for singleton placentas.
+// Alternative singleton reference data from Boyd et al. (user-provided).
+
+export type WeightReference = 'pinar' | 'boyd';
 
 type PercentileData = {
   p10: number;
@@ -8,6 +11,26 @@ type PercentileData = {
   p75: number;
   p90: number;
 };
+
+// Display/citation info for each selectable weight reference.
+export const WEIGHT_REFERENCES = {
+  pinar: {
+    id: 'pinar',
+    label: 'Pinar et al.',
+    citation: 'Pinar H. et al. Pediatr Pathol Lab Med 1996; 16:901-7.',
+  },
+  boyd: {
+    id: 'boyd',
+    label: 'Boyd et al.',
+    citation: 'Boyd et al.',
+  },
+} as const;
+
+export const getWeightReferenceLabel = (reference: WeightReference): string =>
+  WEIGHT_REFERENCES[reference].label;
+
+export const getWeightReferenceCitation = (reference: WeightReference): string =>
+  WEIGHT_REFERENCES[reference].citation;
 
 // Data in grams for singleton placentas by gestational age (weeks)
 const singletonWeights: Record<number, PercentileData> = {
@@ -36,6 +59,32 @@ const singletonWeights: Record<number, PercentileData> = {
   43: { p10: 478, p25: 526, p50: 580, p75: 634, p90: 682 },
   44: { p10: 486, p25: 535, p50: 590, p75: 645, p90: 694 },
   45: { p10: 492, p25: 542, p50: 598, p75: 654, p90: 704 },
+};
+
+// Data in grams for singleton placentas by gestational age (weeks) — Boyd et al. reference.
+// Supplied by the user; covers gestational ages 22-42 weeks.
+const boydSingletonWeights: Record<number, PercentileData> = {
+  22: { p10: 107, p25: 130, p50: 166, p75: 206, p90: 285 },
+  23: { p10: 127, p25: 168, p50: 188, p75: 208, p90: 262 },
+  24: { p10: 128, p25: 157, p50: 192, p75: 222, p90: 252 },
+  25: { p10: 128, p25: 153, p50: 184, p75: 216, p90: 299 },
+  26: { p10: 138, p25: 279, p50: 200, p75: 259, p90: 281 },
+  27: { p10: 130, p25: 166, p50: 242, p75: 310, p90: 332 },
+  28: { p10: 140, p25: 173, p50: 214, p75: 261, p90: 321 },
+  29: { p10: 161, p25: 214, p50: 252, p75: 309, p90: 352 },
+  30: { p10: 208, p25: 269, p50: 316, p75: 374, p90: 433 },
+  31: { p10: 175, p25: 246, p50: 313, p75: 360, p90: 417 },
+  32: { p10: 241, p25: 275, p50: 318, p75: 377, p90: 436 },
+  33: { p10: 252, p25: 286, p50: 352, p75: 413, p90: 446 },
+  34: { p10: 283, p25: 322, p50: 382, p75: 430, p90: 479 },
+  35: { p10: 291, p25: 344, p50: 401, p75: 471, p90: 544 },
+  36: { p10: 320, p25: 369, p50: 440, p75: 508, p90: 580 },
+  37: { p10: 349, p25: 390, p50: 452, p75: 531, p90: 607 },
+  38: { p10: 365, p25: 420, p50: 484, p75: 560, p90: 629 },
+  39: { p10: 379, p25: 426, p50: 490, p75: 564, p90: 635 },
+  40: { p10: 390, p25: 440, p50: 501, p75: 572, p90: 643 },
+  41: { p10: 403, p25: 452, p50: 515, p75: 583, p90: 655 },
+  42: { p10: 412, p25: 460, p50: 525, p75: 592, p90: 658 },
 };
 
 // Data in grams for twin placentas (combined weight)
@@ -81,14 +130,16 @@ const getReferenceData = (
 export const calculatePercentileRank = (
   weight: number,
   weeks: number,
-  birthType: "singleton" | "twin" | "triplet"
+  birthType: "singleton" | "twin" | "triplet",
+  reference: WeightReference = 'pinar'
 ): string | null => {
   if (!weight || !weeks) return null;
 
   let table;
   if (birthType === "singleton") {
-    table = singletonWeights;
+    table = reference === 'boyd' ? boydSingletonWeights : singletonWeights;
   } else if (birthType === "twin") {
+    // Boyd et al. provides singleton-only data; twin calculations always use Pinar et al.
     table = twinWeights;
   } else {
     // No reference data for triplets in this simplified model

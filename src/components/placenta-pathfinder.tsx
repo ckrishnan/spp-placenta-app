@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Copy, Info, Loader2, Sparkles, Bug, BookImage } from "lucide-react";
 import Image from "next/image";
 import { useState, useTransition, useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import {
   Popover,
   PopoverContent,
@@ -53,7 +53,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { calculatePercentileRank } from "@/lib/calculations";
+import { calculatePercentileRank, type WeightReference } from "@/lib/calculations";
 import { compartments, injuryPatterns, specificInfections } from "@/lib/constants";
 import { atlasData } from "@/lib/atlas";
 import { formSchema, type FormValues, type Findings } from "@/lib/schema";
@@ -84,6 +84,7 @@ export function PlacentaPathfinder() {
   const [microscopicDescription, setMicroscopicDescription] = useState("");
   const [percentiles, setPercentiles] = useState<[string | null, string | null]>([null, null]);
   const [activeTwinIndex, setActiveTwinIndex] = useState(0);
+  const [weightReference, setWeightReference] = useState<WeightReference>('pinar');
   const [isCopied, setIsCopied] = useState(false);
   const [isMicroscopicCopied, setIsMicroscopicCopied] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -132,6 +133,9 @@ export function PlacentaPathfinder() {
     bpmfStage: undefined,
     dvmFocality: undefined,
     chronicVillitisExtent: undefined,
+    villitisStemVesselObliteration: false,
+    villitisAvascularVilli: false,
+    villitisPerivillousFibrin: false,
     pigmentMacrophagesMembranes: false,
     pigmentMacrophagesChorionicPlate: false,
     pigmentMacrophagesChorionicVesselWalls: false,
@@ -171,6 +175,102 @@ export function PlacentaPathfinder() {
   const { watch } = form;
   const isTwin = watch("isTwin");
 
+  // Watch the active twin's finding so we can validate acute chorio MIR/FIR staging
+  // against the findings the user has actually selected.
+  const activeFinding = useWatch({ control: form.control, name: `findings.${activeTwinIndex}` }) as Findings | undefined;
+
+  // Expected stages derived from the selected membrane/cord findings.
+  // MIR: 1 = subchorionitis/chorionitis, 2 = chorioamnionitis, 3 = necrotizing chorioamnionitis.
+  // FIR: 1 = chorionic vasculitis/phlebitis, 2 = arteritis, 3 = necrotizing funisitis.
+  const mirChorioamnionitis = !!activeFinding?.membranes?.['acute-chorioamnionitis'];
+  const hasMirFinding =
+      mirChorioamnionitis ||
+      !!activeFinding?.membranes?.['acute-chorionitis'] ||
+      !!activeFinding?.membranes?.['acute-subchorionitis'];
+  const derivedMirStage = mirChorioamnionitis ? '2' : '1';
+  const mirAllowedStages = mirChorioamnionitis ? ['2', '3'] : ['1'];
+
+  const hasFirNecrotizing = !!activeFinding?.umbilicalCord?.['necrotizing-funisitis'];
+  const hasFirArteritis = !!activeFinding?.umbilicalCord?.['umbilical-arteritis'];
+  const hasFirPhlebitisOrVasculitis =
+      !!activeFinding?.umbilicalCord?.['umbilical-phlebitis'] ||
+      !!activeFinding?.membranes?.['chorionic-vasculitis'];
+  const hasFirFinding = hasFirNecrotizing || hasFirArteritis || hasFirPhlebitisOrVasculitis;
+  const derivedFirStage = hasFirNecrotizing ? '3' : hasFirArteritis ? '2' : hasFirPhlebitisOrVasculitis ? '1' : null;
+  const firAllowedStages = hasFirNecrotizing ? ['3'] : hasFirArteritis ? ['2'] : hasFirPhlebitisOrVasculitis ? ['1'] : ['1', '2', '3'];
+
+  // Internal validation: keep MIR/FIR stages consistent with the selected findings.
+  // Conflicting options are disabled in the dropdowns below, and any previously entered
+  // stage that no longer matches is auto-corrected (or cleared once the finding is removed).
+  useEffect(() => {
+    if (activeFinding?.mirStage) {
+      if (!hasMirFinding) {
+        form.setValue(`findings.${activeTwinIndex}.mirStage`, '');
+      } else if (!mirAllowedStages.includes(activeFinding.mirStage)) {
+        form.setValue(`findings.${activeTwinIndex}.mirStage`, derivedMirStage);
+      }
+    }
+    if (activeFinding?.firStage) {
+      if (!hasFirFinding) {
+        form.setValue(`findings.${activeTwinIndex}.firStage`, '');
+      } else if (derivedFirStage && !firAllowedStages.includes(activeFinding.firStage)) {
+        form.setValue(`findings.${activeTwinIndex}.firStage`, derivedFirStage);
+      }
+    }
+  }, [activeFinding, activeTwinIndex, hasMirFinding, hasFirFinding, mirChorioamnionitis, hasFirNecrotizing, hasFirArteritis, hasFirPhlebitisOrVasculitis, derivedMirStage, derivedFirStage, form]);
+
+  // Load the persisted weight reference preference (survives browser close via localStorage).
+  useEffect(() => {
+    try {
+      const stored = window.localStorage.getItem('placentaWeightReference');
+      if (stored === 'pinar' || stored === 'boyd') {
+        setWeightReference(stored);
+      }
+    } catch {
+      // localStorage unavailable; fall back to Pinar et al.
+    }
+  }, []);
+
+  const handleWeightReferenceChange = (value: WeightReference) => {
+    // Radix Select can fire onValueChange with an empty/invalid value on mount;
+    // ignore anything that isn't a supported reference so we never clobber the
+    // persisted selection.
+    if (value !== 'pinar' && value !== 'boyd') return;
+
+    setWeightReference(value);
+    try {
+      window.localStorage.setItem('placentaWeightReference', value);
+    } catch {
+      // localStorage unavailable; keep in-memory selection
+    }
+
+    // Recompute the displayed percentiles and regenerate any existing report
+    // using the newly selected reference.
+    const values = form.getValues();
+    const weeks = Number(values.gestationalAgeWeeks);
+    if (weeks >= 19 && values.findings) {
+      const birthType = values.isTwin ? 'twin' : 'singleton';
+      const ga = weeks + (Number(values.gestationalAgeDays) || 0) / 7;
+      const newPercentiles: [string | null, string | null] = [null, null];
+      values.findings.forEach((finding, index) => {
+        if (finding && finding.placentalWeight) {
+          const weight = Number(finding.placentalWeight);
+          if (weight > 0) {
+            newPercentiles[index] = calculatePercentileRank(weight, ga, birthType, value);
+          }
+        }
+      });
+      setPercentiles(newPercentiles);
+    } else {
+      setPercentiles([null, null]);
+    }
+
+    if (report) {
+      const finalDiagnosis = generateFinalDiagnosis(values as FormValues, value);
+      setReport(finalDiagnosis);
+    }
+  };
+
   useEffect(() => {
     const subscription = watch((value) => {
       const { gestationalAgeWeeks, gestationalAgeDays, isTwin, findings, reportFormat } = value;
@@ -186,7 +286,7 @@ export function PlacentaPathfinder() {
             if (finding && finding.placentalWeight) {
                 const weight = Number(finding.placentalWeight);
                 if (weight > 0) {
-                  const p = calculatePercentileRank(weight, ga, birthType);
+                  const p = calculatePercentileRank(weight, ga, birthType, weightReference);
                   newPercentiles[index] = p;
                 }
             }
@@ -198,18 +298,18 @@ export function PlacentaPathfinder() {
 
       // Regenerate report if it already exists and formatting options changed
       if (report) {
-        const finalDiagnosis = generateFinalDiagnosis(value as FormValues);
+        const finalDiagnosis = generateFinalDiagnosis(value as FormValues, weightReference);
         setReport(finalDiagnosis);
       }
     });
     return () => subscription.unsubscribe();
-  }, [watch, report]);
+  }, [watch, report, weightReference]);
 
 
   const onSubmit = (data: FormValues) => {
     startTransition(() => {
       // Local report generation
-      const finalDiagnosis = generateFinalDiagnosis(data);
+      const finalDiagnosis = generateFinalDiagnosis(data, weightReference);
       const microscopic = generateMicroscopicDescription(data);
       
       setReport(finalDiagnosis);
@@ -270,6 +370,11 @@ export function PlacentaPathfinder() {
     Object.keys(infections).forEach(key => {
         form.setValue(`findings.${activeTwinIndex}.specificInfections.${key}` as any, key === 'other' ? '' : false);
     });
+
+    // Villitis-associated secondary changes
+    form.setValue(`findings.${activeTwinIndex}.villitisStemVesselObliteration` as any, false);
+    form.setValue(`findings.${activeTwinIndex}.villitisAvascularVilli` as any, false);
+    form.setValue(`findings.${activeTwinIndex}.villitisPerivillousFibrin` as any, false);
 
     compartments.forEach(compartment => {
       form.setValue(`findings.${activeTwinIndex}.${compartment.id}.normal` as any, true, { shouldValidate: true });
@@ -404,6 +509,23 @@ export function PlacentaPathfinder() {
                       </FormItem>
                     )}
                   />
+                  <FormItem>
+                    <FormLabel>Weight Reference <span className="text-muted-foreground font-normal">(persisted)</span></FormLabel>
+                    <Select value={weightReference} onValueChange={(v) => handleWeightReferenceChange(v as WeightReference)}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select weight reference" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="pinar">Pinar et al.</SelectItem>
+                        <SelectItem value="boyd">Boyd et al.</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormDescription className="text-xs">
+                      Choose the singleton weight reference used for percentile calculations. Your choice is remembered on this device.
+                    </FormDescription>
+                  </FormItem>
                   <FormField
                     control={form.control}
                     name={`findings.${activeTwinIndex}.completenessOfMaternalSurface`}
@@ -951,7 +1073,11 @@ export function PlacentaPathfinder() {
                                                                   <FormControl>
                                                                     <SelectTrigger><SelectValue placeholder="Stage" /></SelectTrigger>
                                                                   </FormControl>
-                                                                  <SelectContent><SelectItem value="1">1</SelectItem><SelectItem value="2">2</SelectItem><SelectItem value="3">3</SelectItem></SelectContent>
+                                                                  <SelectContent>
+                                                                    <SelectItem value="1" disabled={!mirAllowedStages.includes('1')}>1</SelectItem>
+                                                                    <SelectItem value="2" disabled={!mirAllowedStages.includes('2')}>2</SelectItem>
+                                                                    <SelectItem value="3" disabled={!mirAllowedStages.includes('3')}>3</SelectItem>
+                                                                  </SelectContent>
                                                                 </Select>
                                                                 <FormMessage /></FormItem>
                                                             )}/>
@@ -971,7 +1097,11 @@ export function PlacentaPathfinder() {
                                                                   <FormControl>
                                                                     <SelectTrigger><SelectValue placeholder="Stage" /></SelectTrigger>
                                                                   </FormControl>
-                                                                  <SelectContent><SelectItem value="1">1</SelectItem><SelectItem value="2">2</SelectItem><SelectItem value="3">3</SelectItem></SelectContent>
+                                                                  <SelectContent>
+                                                                    <SelectItem value="1" disabled={!firAllowedStages.includes('1')}>1</SelectItem>
+                                                                    <SelectItem value="2" disabled={!firAllowedStages.includes('2')}>2</SelectItem>
+                                                                    <SelectItem value="3" disabled={!firAllowedStages.includes('3')}>3</SelectItem>
+                                                                  </SelectContent>
                                                                 </Select>
                                                                 <FormMessage /></FormItem>
                                                             )}/>
@@ -985,6 +1115,14 @@ export function PlacentaPathfinder() {
                                                                 </Select>
                                                                 <FormMessage /></FormItem>
                                                             )}/>
+                                                        </div>
+                                                        <div className="rounded-md border border-border bg-muted/40 px-3 py-2 text-xs text-muted-foreground space-y-1">
+                                                            <p className="font-medium">Staging</p>
+                                                            <p>
+                                                                MIR stage: <strong>{activeFinding?.mirStage || derivedMirStage}</strong>
+                                                                {derivedFirStage ? <> · FIR stage: <strong>{activeFinding?.firStage || derivedFirStage}</strong></> : null}
+                                                            </p>
+                                                            <p>Stages are kept consistent with your selected findings — conflicting options are disabled and mismatches are auto-corrected.</p>
                                                         </div>
                                                         <div className="space-y-2">
                                                             <FormField control={form.control} name={`findings.${activeTwinIndex}.bacteriaPresent`} render={({ field }) => (
@@ -1157,6 +1295,27 @@ export function PlacentaPathfinder() {
                                                           </Select>
                                                           </FormItem>
                                                         )}/>
+                                                        <div className="pt-2 space-y-1">
+                                                          <p className="text-xs font-medium text-muted-foreground">Associated with villitis (when appropriate):</p>
+                                                          <FormField control={form.control} name={`findings.${activeTwinIndex}.villitisStemVesselObliteration`} render={({ field }) => (
+                                                            <FormItem className="flex flex-row items-center space-x-3 space-y-0 rounded-md border p-2">
+                                                              <FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl>
+                                                              <FormLabel className="font-normal text-xs cursor-pointer">Stem vessel obliteration</FormLabel>
+                                                            </FormItem>
+                                                          )}/>
+                                                          <FormField control={form.control} name={`findings.${activeTwinIndex}.villitisAvascularVilli`} render={({ field }) => (
+                                                            <FormItem className="flex flex-row items-center space-x-3 space-y-0 rounded-md border p-2">
+                                                              <FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl>
+                                                              <FormLabel className="font-normal text-xs cursor-pointer">Avascular villi</FormLabel>
+                                                            </FormItem>
+                                                          )}/>
+                                                          <FormField control={form.control} name={`findings.${activeTwinIndex}.villitisPerivillousFibrin`} render={({ field }) => (
+                                                            <FormItem className="flex flex-row items-center space-x-3 space-y-0 rounded-md border p-2">
+                                                              <FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl>
+                                                              <FormLabel className="font-normal text-xs cursor-pointer">Perivillous fibrin deposition</FormLabel>
+                                                            </FormItem>
+                                                          )}/>
+                                                        </div>
                                                       </div>
                                                     )}
                                                     {alteration.id === 'pigment-laden-macrophages' && field.value && (
@@ -1271,7 +1430,10 @@ export function PlacentaPathfinder() {
             </Accordion>
 
 
-            <div className="flex justify-center">
+            <div className="flex justify-center gap-3">
+              <Button type="button" variant="outline" size="lg" onClick={() => handleClearAllSelections()} className="shadow-lg">
+                Clear All Selections
+              </Button>
               <Button type="submit" size="lg" disabled={isPending} className="shadow-lg">
                 {isPending ? (
                   <Loader2 className="mr-2 h-5 w-5 animate-spin" />

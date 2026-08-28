@@ -1,6 +1,20 @@
 import { FormValues, Findings } from './schema';
 import { compartments, injuryPatterns } from './constants';
-import { calculatePercentileRank } from './calculations';
+import { calculatePercentileRank, getWeightReferenceCitation, type WeightReference } from './calculations';
+
+// Secondary changes associated with chronic villitis that should be reported with the
+// villitis (CI group) rather than being classified as primary fetal vascular malperfusion.
+function getVillitisAssociatedSuffix(finding: Findings): string {
+  const assoc: string[] = [];
+  if (finding.villitisStemVesselObliteration) assoc.push('stem vessel obliteration');
+  if (finding.villitisAvascularVilli) assoc.push('avascular villi');
+  if (finding.villitisPerivillousFibrin) assoc.push('perivillous fibrin deposition');
+  if (assoc.length === 0) return '';
+  let joined = assoc[0];
+  if (assoc.length === 2) joined = `${assoc[0]} and ${assoc[1]}`;
+  if (assoc.length > 2) joined = `${assoc.slice(0, -1).join(', ')}, and ${assoc[assoc.length - 1]}`;
+  return `, associated with ${joined}`;
+}
 
 function generateMicroscopicForFinding(finding: Findings, isTwin: boolean, index: number): string {
   const parts: string[] = [];
@@ -139,12 +153,14 @@ function generateMicroscopicForFinding(finding: Findings, isTwin: boolean, index
     if (finding.placentalVilli['low-grade-chronic-villitis']) {
         let text = "There is low-grade chronic villitis of unknown etiology (VUE) characterized by a lymphohistiocytic infiltrate involving less than 10 villi per focus";
         if (finding.chronicVillitisExtent) text += `, ${finding.chronicVillitisExtent}`;
+        text += getVillitisAssociatedSuffix(finding);
         text += ".";
         diskParts.push(text);
     }
     if (finding.placentalVilli['high-grade-chronic-villitis']) {
         let text = "There is high-grade chronic villitis of unknown etiology (VUE) characterized by a lymphohistiocytic infiltrate involving more than 10 villi per focus or multiple foci";
         if (finding.chronicVillitisExtent) text += `, ${finding.chronicVillitisExtent}`;
+        text += getVillitisAssociatedSuffix(finding);
         text += ".";
         diskParts.push(text);
     }
@@ -206,14 +222,14 @@ function generateMicroscopicForFinding(finding: Findings, isTwin: boolean, index
   return twinPrefix + parts.join('\n\n');
 }
 
-function generateFinalDiagnosisForFinding(finding: Findings, isTwin: boolean, index: number, ga: number, clinicalMSF: boolean, clinicalAbruption: boolean): string[] {
+function generateFinalDiagnosisForFinding(finding: Findings, isTwin: boolean, index: number, ga: number, clinicalMSF: boolean, clinicalAbruption: boolean, weightReference: WeightReference = 'pinar'): string[] {
   const lines: string[] = [];
   const twinPrefix = isTwin ? `TWIN ${index === 0 ? 'A' : 'B'}:` : '';
   
   if (twinPrefix) lines.push(twinPrefix);
 
   const birthType = isTwin ? 'twin' : 'singleton';
-  const percentile = calculatePercentileRank(Number(finding.placentalWeight), ga, birthType);
+  const percentile = calculatePercentileRank(Number(finding.placentalWeight), ga, birthType, weightReference);
   const percentileText = (percentile && percentile !== 'N/A') ? ` (${percentile} percentile)` : '';
   lines.push(`- Placental weight: ${finding.placentalWeight} g${percentileText}`);
 
@@ -334,10 +350,15 @@ function generateFinalDiagnosisForFinding(finding: Findings, isTwin: boolean, in
                 text += ` with ${details.join(' and ')}`;
             }
 
-            if ((id === 'low-grade-chronic-villitis' || id === 'high-grade-chronic-villitis') && finding.chronicVillitisExtent) {
+            if (id === 'low-grade-chronic-villitis' || id === 'high-grade-chronic-villitis') {
                 // Manuscript style: extent precedes grade, e.g. "Patchy high grade chronic villitis"
-                const extent = finding.chronicVillitisExtent.charAt(0).toUpperCase() + finding.chronicVillitisExtent.slice(1);
-                text = `${extent} ${text.charAt(0).toLowerCase() + text.slice(1)}`;
+                if (finding.chronicVillitisExtent) {
+                    const extent = finding.chronicVillitisExtent.charAt(0).toUpperCase() + finding.chronicVillitisExtent.slice(1);
+                    text = `${extent} ${text.charAt(0).toLowerCase() + text.slice(1)}`;
+                }
+                // Report villitis-associated secondary changes with the villitis (CI group),
+                // not as primary fetal vascular malperfusion.
+                text += getVillitisAssociatedSuffix(finding);
             }
             
             // Abruption header requires >=2 supporting features; a single isolated feature
@@ -521,7 +542,7 @@ export function generateMicroscopicDescription(values: FormValues): string {
   ).join('\n\n---\n\n');
 }
 
-export function generateFinalDiagnosis(values: FormValues): string {
+export function generateFinalDiagnosis(values: FormValues, weightReference: WeightReference = 'pinar'): string {
   const lines: string[] = [];
   const gaWeeks = values.gestationalAgeWeeks || 0;
   const gaDays = values.gestationalAgeDays || 0;
@@ -559,7 +580,7 @@ export function generateFinalDiagnosis(values: FormValues): string {
   const findingsToProcess = values.isTwin ? values.findings : [values.findings[0]];
 
   findingsToProcess.forEach((finding, index) => {
-    const findingLines = generateFinalDiagnosisForFinding(finding, values.isTwin, index, ga, values.clinicalMSF, values.clinicalAbruption);
+    const findingLines = generateFinalDiagnosisForFinding(finding, values.isTwin, index, ga, values.clinicalMSF, values.clinicalAbruption, weightReference);
     lines.push(...findingLines);
     if (index < findingsToProcess.length - 1) lines.push('');
   });
@@ -638,7 +659,7 @@ export function generateFinalDiagnosis(values: FormValues): string {
   }
 
   lines.push('');
-  lines.push('Reference for placental weight percentiles: Pinar H. et al. Pediatr Pathol Lab med 1996; 16:901-7.');
+  lines.push(`Reference for placental weight percentiles: ${getWeightReferenceCitation(weightReference)}`);
 
   return lines.join('\n');
 }

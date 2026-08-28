@@ -40,6 +40,8 @@ export function HowToModal() {
             <p>
               Enter the placental weight in grams. For twins, use the tabs to switch between twins. 
               The tool automatically calculates the estimated weight percentile based on published reference data.
+              Use the <strong>"Weight Reference"</strong> selector in the header to choose between 
+              <strong> Pinar et al.</strong> and <strong>Boyd et al.</strong>; your choice is remembered on this device.
             </p>
           </div>
           <div className="space-y-2">

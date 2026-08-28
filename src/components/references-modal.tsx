@@ -41,6 +41,18 @@ export function ReferencesModal() {
             </p>
           </div>
           <div className="space-y-2">
+            <h3 className="font-bold">Alternative Singleton Reference</h3>
+            <p className="text-xs">
+              Users can choose an alternative singleton weight reference in the header section:
+            </p>
+            <blockquote className="border-l-2 pl-4 italic text-muted-foreground">
+              Boyd et al. (user-provided singleton reference data; gestational ages 22-42 weeks).
+            </blockquote>
+            <p className="text-xs mt-2">
+              The selected reference is remembered on this device. Twin calculations always use Pinar et al. because Boyd et al. provides singleton data only.
+            </p>
+          </div>
+          <div className="space-y-2">
             <h3 className="font-bold">Standardized Reporting Template</h3>
             <p className="text-xs">
               This tool was developed from the following manuscript and the recommendations of its authors:

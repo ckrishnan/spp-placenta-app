@@ -84,6 +84,11 @@ const findingsSchema = z.object({
   // Chronic villitis extent (focal/multifocal for low grade; patchy/diffuse for high grade)
   chronicVillitisExtent: z.enum(['focal', 'multifocal', 'patchy', 'diffuse']).optional(),
 
+  // Villitis-associated secondary changes (reported with the villitis rather than as primary FVM)
+  villitisStemVesselObliteration: z.boolean().default(false),
+  villitisAvascularVilli: z.boolean().default(false),
+  villitisPerivillousFibrin: z.boolean().default(false),
+
   // Pigment-laden macrophages location
   pigmentMacrophagesMembranes: z.boolean().default(false),
   pigmentMacrophagesChorionicPlate: z.boolean().default(false),
