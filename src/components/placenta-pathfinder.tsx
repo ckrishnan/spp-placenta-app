@@ -22,6 +22,7 @@ import { cn } from "@/lib/utils";
 import { AtlasModal } from "@/components/atlas-modal";
 import { HowToModal } from "@/components/how-to-modal";
 import { ReferencesModal } from "@/components/references-modal";
+import { DisclaimerModal } from "@/components/disclaimer-modal";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -416,6 +417,7 @@ export function PlacentaPathfinder() {
             <HowToModal />
             <AtlasModal />
             <ReferencesModal />
+            <DisclaimerModal />
           </div>
         </header>
 
