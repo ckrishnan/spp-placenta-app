@@ -31,7 +31,6 @@
     "Tooltip images resolve by manifest id only — an id listed in `atlasData` that is missing from the",
     "manifest below is silently skipped. The Picture Atlas chapters do NOT depend on this manifest."
   ],
-  
   "placeholderImages": [
     {
       "id": "normal-uc",
@@ -140,6 +139,966 @@
       "description": "Normal villi (8 weeks gestation)",
       "imageUrl": "/images/atlas/normal/normal villi 8 weeks.jpg",
       "imageHint": "early gestation 8 weeks"
+    },
+    {
+      "id": "miscellaneous-lesions--meconium-related-vascular-necrosis-2",
+      "description": "Meconium Related Vascular Necrosis (2)",
+      "imageUrl": "/images/atlas/Miscellaneous lesions/meconium related vascular necrosis (2).jpg",
+      "imageHint": "Miscellaneous lesions"
+    },
+    {
+      "id": "miscellaneous-lesions--meconium-related-vascular-necrosis",
+      "description": "Meconium Related Vascular Necrosis",
+      "imageUrl": "/images/atlas/Miscellaneous lesions/meconium related vascular necrosis.JPG",
+      "imageHint": "Miscellaneous lesions"
+    },
+    {
+      "id": "miscellaneous-lesions--membranous-pigment-laden-macrophages-2",
+      "description": "Membranous Pigment Laden Macrophages (2)",
+      "imageUrl": "/images/atlas/Miscellaneous lesions/membranous pigment laden macrophages (2).JPG",
+      "imageHint": "Miscellaneous lesions"
+    },
+    {
+      "id": "miscellaneous-lesions--membranous-pigment-laden-macrophages-3",
+      "description": "Membranous Pigment Laden Macrophages (3)",
+      "imageUrl": "/images/atlas/Miscellaneous lesions/membranous pigment laden macrophages (3).jpg",
+      "imageHint": "Miscellaneous lesions"
+    },
+    {
+      "id": "miscellaneous-lesions--membranous-pigment-laden-macrophages",
+      "description": "Membranous Pigment Laden Macrophages",
+      "imageUrl": "/images/atlas/Miscellaneous lesions/membranous pigment laden macrophages.JPG",
+      "imageHint": "Miscellaneous lesions"
+    },
+    {
+      "id": "miscellaneous-lesions--subchorionic-thrombus-2",
+      "description": "Subchorionic Thrombus (2)",
+      "imageUrl": "/images/atlas/Miscellaneous lesions/subchorionic thrombus (2).jpg",
+      "imageHint": "Miscellaneous lesions"
+    },
+    {
+      "id": "miscellaneous-lesions--subchorionic-thrombus",
+      "description": "Subchorionic Thrombus",
+      "imageUrl": "/images/atlas/Miscellaneous lesions/subchorionic thrombus.JPG",
+      "imageHint": "Miscellaneous lesions"
+    },
+    {
+      "id": "fetal-vascular-malperfusion--avascular-villi-2",
+      "description": "Avascular Villi (2)",
+      "imageUrl": "/images/atlas/fetal vascular malperfusion/avascular villi (2).jpg",
+      "imageHint": "fetal vascular malperfusion"
+    },
+    {
+      "id": "fetal-vascular-malperfusion--avascular-villi-3",
+      "description": "Avascular Villi (3)",
+      "imageUrl": "/images/atlas/fetal vascular malperfusion/avascular villi (3).jpg",
+      "imageHint": "fetal vascular malperfusion"
+    },
+    {
+      "id": "fetal-vascular-malperfusion--avascular-villi",
+      "description": "Avascular Villi",
+      "imageUrl": "/images/atlas/fetal vascular malperfusion/avascular villi.JPG",
+      "imageHint": "fetal vascular malperfusion"
+    },
+    {
+      "id": "fetal-vascular-malperfusion--intramural-fibrin-deposition-2",
+      "description": "Intramural Fibrin Deposition (2)",
+      "imageUrl": "/images/atlas/fetal vascular malperfusion/intramural fibrin deposition (2).jpg",
+      "imageHint": "fetal vascular malperfusion"
+    },
+    {
+      "id": "fetal-vascular-malperfusion--intramural-fibrin-deposition-recent-and-remote",
+      "description": "Intramural Fibrin Deposition Recent And Remote",
+      "imageUrl": "/images/atlas/fetal vascular malperfusion/intramural fibrin deposition - recent and remote.jpg",
+      "imageHint": "fetal vascular malperfusion"
+    },
+    {
+      "id": "fetal-vascular-malperfusion--intramural-fibrin-deposition",
+      "description": "Intramural Fibrin Deposition",
+      "imageUrl": "/images/atlas/fetal vascular malperfusion/intramural fibrin deposition.JPG",
+      "imageHint": "fetal vascular malperfusion"
+    },
+    {
+      "id": "fetal-vascular-malperfusion--non-occlusive-thrombus-with-calc",
+      "description": "Non Occlusive Thrombus With Calc",
+      "imageUrl": "/images/atlas/fetal vascular malperfusion/non-occlusive thrombus with calc.jpg",
+      "imageHint": "fetal vascular malperfusion"
+    },
+    {
+      "id": "fetal-vascular-malperfusion--non-occlusive-thrombus",
+      "description": "Non Occlusive Thrombus",
+      "imageUrl": "/images/atlas/fetal vascular malperfusion/non-occlusive thrombus.jpg",
+      "imageHint": "fetal vascular malperfusion"
+    },
+    {
+      "id": "fetal-vascular-malperfusion--occlusive-thrombus-2",
+      "description": "Occlusive Thrombus (2)",
+      "imageUrl": "/images/atlas/fetal vascular malperfusion/occlusive thrombus (2).jpg",
+      "imageHint": "fetal vascular malperfusion"
+    },
+    {
+      "id": "fetal-vascular-malperfusion--occlusive-thrombus-and-involution",
+      "description": "Occlusive Thrombus And Involution",
+      "imageUrl": "/images/atlas/fetal vascular malperfusion/occlusive thrombus and involution.jpg",
+      "imageHint": "fetal vascular malperfusion"
+    },
+    {
+      "id": "fetal-vascular-malperfusion--occlusive-thrombus",
+      "description": "Occlusive Thrombus",
+      "imageUrl": "/images/atlas/fetal vascular malperfusion/occlusive thrombus.jpg",
+      "imageHint": "fetal vascular malperfusion"
+    },
+    {
+      "id": "fetal-vascular-malperfusion--stem-vessel-obliteration-2",
+      "description": "Stem Vessel Obliteration (2)",
+      "imageUrl": "/images/atlas/fetal vascular malperfusion/stem vessel obliteration (2).jpg",
+      "imageHint": "fetal vascular malperfusion"
+    },
+    {
+      "id": "fetal-vascular-malperfusion--stem-vessel-obliteration-3",
+      "description": "Stem Vessel Obliteration (3)",
+      "imageUrl": "/images/atlas/fetal vascular malperfusion/stem vessel obliteration (3).jpg",
+      "imageHint": "fetal vascular malperfusion"
+    },
+    {
+      "id": "fetal-vascular-malperfusion--stem-vessel-obliteration",
+      "description": "Stem Vessel Obliteration",
+      "imageUrl": "/images/atlas/fetal vascular malperfusion/stem vessel obliteration.JPG",
+      "imageHint": "fetal vascular malperfusion"
+    },
+    {
+      "id": "fetal-vascular-malperfusion--stromal-villous-karyorrhexis-2",
+      "description": "Stromal Villous Karyorrhexis (2)",
+      "imageUrl": "/images/atlas/fetal vascular malperfusion/stromal villous karyorrhexis (2).JPG",
+      "imageHint": "fetal vascular malperfusion"
+    },
+    {
+      "id": "fetal-vascular-malperfusion--stromal-villous-karyorrhexis-3",
+      "description": "Stromal Villous Karyorrhexis (3)",
+      "imageUrl": "/images/atlas/fetal vascular malperfusion/stromal villous karyorrhexis (3).jpg",
+      "imageHint": "fetal vascular malperfusion"
+    },
+    {
+      "id": "fetal-vascular-malperfusion--stromal-villous-karyorrhexis",
+      "description": "Stromal Villous Karyorrhexis",
+      "imageUrl": "/images/atlas/fetal vascular malperfusion/stromal villous karyorrhexis.JPG",
+      "imageHint": "fetal vascular malperfusion"
+    },
+    {
+      "id": "acute-chorioamnionitis--acute-chorioamnionitis-grade-2-mir-2",
+      "description": "Acute Chorioamnionitis Grade 2 Mir (2)",
+      "imageUrl": "/images/atlas/acute chorioamnionitis/acute chorioamnionitis grade 2 MIR (2).JPG",
+      "imageHint": "acute chorioamnionitis"
+    },
+    {
+      "id": "acute-chorioamnionitis--acute-chorioamnionitis-grade-2-mir",
+      "description": "Acute Chorioamnionitis Grade 2 Mir",
+      "imageUrl": "/images/atlas/acute chorioamnionitis/acute chorioamnionitis grade 2 MIR.jpg",
+      "imageHint": "acute chorioamnionitis"
+    },
+    {
+      "id": "acute-chorioamnionitis--acute-chorioamnionitis-stage-1-fir-in-vein",
+      "description": "Acute Chorioamnionitis Stage 1 Fir In Vein",
+      "imageUrl": "/images/atlas/acute chorioamnionitis/acute chorioamnionitis stage 1 FIR in vein.jpg",
+      "imageHint": "acute chorioamnionitis"
+    },
+    {
+      "id": "acute-chorioamnionitis--acute-chorioamnionitis-stage-1-fir",
+      "description": "Acute Chorioamnionitis Stage 1 Fir",
+      "imageUrl": "/images/atlas/acute chorioamnionitis/acute chorioamnionitis stage 1 FIR.jpg",
+      "imageHint": "acute chorioamnionitis"
+    },
+    {
+      "id": "acute-chorioamnionitis--acute-chorioamnionitis-stage-1-mir-2",
+      "description": "Acute Chorioamnionitis Stage 1 Mir (2)",
+      "imageUrl": "/images/atlas/acute chorioamnionitis/acute chorioamnionitis stage 1 MIR (2).JPG",
+      "imageHint": "acute chorioamnionitis"
+    },
+    {
+      "id": "acute-chorioamnionitis--acute-chorioamnionitis-stage-1-mir-subchorionitis",
+      "description": "Acute Chorioamnionitis Stage 1 Mir Subchorionitis",
+      "imageUrl": "/images/atlas/acute chorioamnionitis/acute chorioamnionitis stage 1 MIR subchorionitis.jpg",
+      "imageHint": "acute chorioamnionitis"
+    },
+    {
+      "id": "acute-chorioamnionitis--acute-chorioamnionitis-stage-1-mir",
+      "description": "Acute Chorioamnionitis Stage 1 Mir",
+      "imageUrl": "/images/atlas/acute chorioamnionitis/acute chorioamnionitis stage 1 MIR.jpg",
+      "imageHint": "acute chorioamnionitis"
+    },
+    {
+      "id": "acute-chorioamnionitis--acute-chorioamnionitis-stage-2-fir-2",
+      "description": "Acute Chorioamnionitis Stage 2 Fir (2)",
+      "imageUrl": "/images/atlas/acute chorioamnionitis/acute chorioamnionitis stage 2 FIR (2).JPG",
+      "imageHint": "acute chorioamnionitis"
+    },
+    {
+      "id": "acute-chorioamnionitis--acute-chorioamnionitis-stage-2-fir",
+      "description": "Acute Chorioamnionitis Stage 2 Fir",
+      "imageUrl": "/images/atlas/acute chorioamnionitis/acute chorioamnionitis stage 2 FIR.jpg",
+      "imageHint": "acute chorioamnionitis"
+    },
+    {
+      "id": "acute-chorioamnionitis--acute-chorioamnionitis-stage-2-mir",
+      "description": "Acute Chorioamnionitis Stage 2 Mir",
+      "imageUrl": "/images/atlas/acute chorioamnionitis/acute chorioamnionitis stage 2 MIR.JPG",
+      "imageHint": "acute chorioamnionitis"
+    },
+    {
+      "id": "acute-chorioamnionitis--acute-chorioamnionitis-stage-3-fir",
+      "description": "Acute Chorioamnionitis Stage 3 Fir",
+      "imageUrl": "/images/atlas/acute chorioamnionitis/acute chorioamnionitis stage 3 FIR.JPG",
+      "imageHint": "acute chorioamnionitis"
+    },
+    {
+      "id": "acute-chorioamnionitis--acute-chorioamnionitis-stage-3-mir",
+      "description": "Acute Chorioamnionitis Stage 3 Mir",
+      "imageUrl": "/images/atlas/acute chorioamnionitis/acute chorioamnionitis stage 3 MIR.JPG",
+      "imageHint": "acute chorioamnionitis"
+    },
+    {
+      "id": "acute-chorioamnionitis--acute-chorio-table",
+      "description": "Acute Chorio Table",
+      "imageUrl": "/images/atlas/acute chorioamnionitis/acute_chorio_table.jpg",
+      "imageHint": "acute chorioamnionitis"
+    },
+    {
+      "id": "infections--cmv-placentitis-2",
+      "description": "Cmv Placentitis (2)",
+      "imageUrl": "/images/atlas/Infections/CMV placentitis (2).jpg",
+      "imageHint": "Infections"
+    },
+    {
+      "id": "infections--cmv-placentitis-3",
+      "description": "Cmv Placentitis (3)",
+      "imageUrl": "/images/atlas/Infections/CMV placentitis (3).jpg",
+      "imageHint": "Infections"
+    },
+    {
+      "id": "infections--cmv-placentitis",
+      "description": "Cmv Placentitis",
+      "imageUrl": "/images/atlas/Infections/CMV placentitis.jpg",
+      "imageHint": "Infections"
+    },
+    {
+      "id": "infections--candida-funisitis-low",
+      "description": "Candida Funisitis Low",
+      "imageUrl": "/images/atlas/Infections/candida funisitis - low.jpg",
+      "imageHint": "Infections"
+    },
+    {
+      "id": "infections--candida-funisitis-gms",
+      "description": "Candida Funisitis Gms",
+      "imageUrl": "/images/atlas/Infections/candida funisitis-  GMS.jpg",
+      "imageHint": "Infections"
+    },
+    {
+      "id": "infections--candida-funisitis",
+      "description": "Candida Funisitis",
+      "imageUrl": "/images/atlas/Infections/candida funisitis.jpg",
+      "imageHint": "Infections"
+    },
+    {
+      "id": "infections--candida-funsiitis-high",
+      "description": "Candida Funsiitis High",
+      "imageUrl": "/images/atlas/Infections/candida funsiitis - high.jpg",
+      "imageHint": "Infections"
+    },
+    {
+      "id": "gross-images--circumvallate-membrane-insert-2",
+      "description": "Circumvallate Membrane Insert 2",
+      "imageUrl": "/images/atlas/gross images/circumvallate membrane insert 2.JPEG",
+      "imageHint": "gross images"
+    },
+    {
+      "id": "gross-images--circumvallate-membrane-insert-3",
+      "description": "Circumvallate Membrane Insert 3",
+      "imageUrl": "/images/atlas/gross images/circumvallate membrane insert 3.JPG",
+      "imageHint": "gross images"
+    },
+    {
+      "id": "gross-images--circumvallate-membrane-insert",
+      "description": "Circumvallate Membrane Insert",
+      "imageUrl": "/images/atlas/gross images/circumvallate membrane insert.JPEG",
+      "imageHint": "gross images"
+    },
+    {
+      "id": "gross-images--disrupted-maternal-surface",
+      "description": "Disrupted Maternal Surface",
+      "imageUrl": "/images/atlas/gross images/disrupted maternal surface.JPEG",
+      "imageHint": "gross images"
+    },
+    {
+      "id": "gross-images--marginal-insertion-4",
+      "description": "Marginal Insertion 4",
+      "imageUrl": "/images/atlas/gross images/marginal insertion 4.jpg",
+      "imageHint": "gross images"
+    },
+    {
+      "id": "gross-images--mpfvd-cut-surface",
+      "description": "Mpfvd Cut Surface",
+      "imageUrl": "/images/atlas/gross images/mpfvd cut surface.jpg",
+      "imageHint": "gross images"
+    },
+    {
+      "id": "gross-images--mpfvd-maternal-surface",
+      "description": "Mpfvd Maternal Surface",
+      "imageUrl": "/images/atlas/gross images/mpfvd maternal surface.jpg",
+      "imageHint": "gross images"
+    },
+    {
+      "id": "gross-images--placenta-accessory-lobe",
+      "description": "Placenta Accessory Lobe",
+      "imageUrl": "/images/atlas/gross images/placenta accessory lobe.jpg",
+      "imageHint": "gross images"
+    },
+    {
+      "id": "gross-images--placenta-accessory-lobe2",
+      "description": "Placenta Accessory Lobe2",
+      "imageUrl": "/images/atlas/gross images/placenta accessory lobe2.jpg",
+      "imageHint": "gross images"
+    },
+    {
+      "id": "gross-images--placenta-accessory-lobe3",
+      "description": "Placenta Accessory Lobe3",
+      "imageUrl": "/images/atlas/gross images/placenta accessory lobe3.jpg",
+      "imageHint": "gross images"
+    },
+    {
+      "id": "gross-images--placenta-incomplete-surface",
+      "description": "Placenta Incomplete Surface",
+      "imageUrl": "/images/atlas/gross images/placenta incomplete surface.jpg",
+      "imageHint": "gross images"
+    },
+    {
+      "id": "gross-images--placenta-retroplacental-hematoma-cross",
+      "description": "Placenta Retroplacental Hematoma Cross",
+      "imageUrl": "/images/atlas/gross images/placenta retroplacental hematoma cross.jpg",
+      "imageHint": "gross images"
+    },
+    {
+      "id": "gross-images--placenta-retroplacental-hematoma-maternal",
+      "description": "Placenta Retroplacental Hematoma Maternal",
+      "imageUrl": "/images/atlas/gross images/placenta retroplacental hematoma maternal.jpg",
+      "imageHint": "gross images"
+    },
+    {
+      "id": "gross-images--placenta-retroplacental-hematoma",
+      "description": "Placenta Retroplacental Hematoma",
+      "imageUrl": "/images/atlas/gross images/placenta retroplacental hematoma.jpg",
+      "imageHint": "gross images"
+    },
+    {
+      "id": "gross-images--twin-mono-anastomosis-2",
+      "description": "Twin Mono Anastomosis 2",
+      "imageUrl": "/images/atlas/gross images/twin mono anastomosis 2.jpg",
+      "imageHint": "gross images"
+    },
+    {
+      "id": "gross-images--twin-mono-anastomosis-3",
+      "description": "Twin Mono Anastomosis 3",
+      "imageUrl": "/images/atlas/gross images/twin mono anastomosis 3.png",
+      "imageHint": "gross images"
+    },
+    {
+      "id": "gross-images--twin-mono-anastomosis-av",
+      "description": "Twin Mono Anastomosis Av",
+      "imageUrl": "/images/atlas/gross images/twin mono anastomosis AV.jpg",
+      "imageHint": "gross images"
+    },
+    {
+      "id": "gross-images--twin-mono-anastomosis",
+      "description": "Twin Mono Anastomosis",
+      "imageUrl": "/images/atlas/gross images/twin mono anastomosis.png",
+      "imageHint": "gross images"
+    },
+    {
+      "id": "gross-images--uc-furcate-2",
+      "description": "Uc Furcate 2",
+      "imageUrl": "/images/atlas/gross images/uc furcate 2.jpg",
+      "imageHint": "gross images"
+    },
+    {
+      "id": "gross-images--uc-furcate",
+      "description": "Uc Furcate",
+      "imageUrl": "/images/atlas/gross images/uc furcate.jpg",
+      "imageHint": "gross images"
+    },
+    {
+      "id": "gross-images--uc-hypercoiled-2",
+      "description": "Uc Hypercoiled 2",
+      "imageUrl": "/images/atlas/gross images/uc hypercoiled 2.jpg",
+      "imageHint": "gross images"
+    },
+    {
+      "id": "gross-images--uc-hypercoiled-4",
+      "description": "Uc Hypercoiled 4",
+      "imageUrl": "/images/atlas/gross images/uc hypercoiled 4.jpg",
+      "imageHint": "gross images"
+    },
+    {
+      "id": "gross-images--uc-hypercoiled-0",
+      "description": "Uc Hypercoiled 0",
+      "imageUrl": "/images/atlas/gross images/uc hypercoiled-0.jpg",
+      "imageHint": "gross images"
+    },
+    {
+      "id": "gross-images--uc-hypercoiled-3",
+      "description": "Uc Hypercoiled 3",
+      "imageUrl": "/images/atlas/gross images/uc hypercoiled-3.jpg",
+      "imageHint": "gross images"
+    },
+    {
+      "id": "gross-images--uc-hypercoiled",
+      "description": "Uc Hypercoiled",
+      "imageUrl": "/images/atlas/gross images/uc hypercoiled.JPG",
+      "imageHint": "gross images"
+    },
+    {
+      "id": "gross-images--uc-marginal-insertion-2",
+      "description": "Uc Marginal Insertion 2",
+      "imageUrl": "/images/atlas/gross images/uc marginal insertion 2.jpg",
+      "imageHint": "gross images"
+    },
+    {
+      "id": "gross-images--uc-marginal-insertion",
+      "description": "Uc Marginal Insertion",
+      "imageUrl": "/images/atlas/gross images/uc marginal insertion.JPG",
+      "imageHint": "gross images"
+    },
+    {
+      "id": "gross-images--uc-meconium-staining-2",
+      "description": "Uc Meconium Staining (2)",
+      "imageUrl": "/images/atlas/gross images/uc meconium staining (2).jpg",
+      "imageHint": "gross images"
+    },
+    {
+      "id": "gross-images--uc-meconium-staining",
+      "description": "Uc Meconium Staining",
+      "imageUrl": "/images/atlas/gross images/uc meconium staining.jpg",
+      "imageHint": "gross images"
+    },
+    {
+      "id": "gross-images--uc-true-knot-2",
+      "description": "Uc True Knot 2",
+      "imageUrl": "/images/atlas/gross images/uc true knot 2.jpg",
+      "imageHint": "gross images"
+    },
+    {
+      "id": "gross-images--uc-true-knot-3",
+      "description": "Uc True Knot 3",
+      "imageUrl": "/images/atlas/gross images/uc true knot 3.jpg",
+      "imageHint": "gross images"
+    },
+    {
+      "id": "gross-images--uc-true-knot",
+      "description": "Uc True Knot",
+      "imageUrl": "/images/atlas/gross images/uc true knot.JPG",
+      "imageHint": "gross images"
+    },
+    {
+      "id": "gross-images--uc-true-knot5",
+      "description": "Uc True Knot5",
+      "imageUrl": "/images/atlas/gross images/uc true knot5.png",
+      "imageHint": "gross images"
+    },
+    {
+      "id": "gross-images--uc-velamentous-4",
+      "description": "Uc Velamentous 4",
+      "imageUrl": "/images/atlas/gross images/uc velamentous 4.jpg",
+      "imageHint": "gross images"
+    },
+    {
+      "id": "gross-images--uc-velamentous",
+      "description": "Uc Velamentous",
+      "imageUrl": "/images/atlas/gross images/uc velamentous.jpg",
+      "imageHint": "gross images"
+    },
+    {
+      "id": "maternal-vascular-malperfusion--accelerated-villous-maturation-1",
+      "description": "Accelerated Villous Maturation 1",
+      "imageUrl": "/images/atlas/maternal vascular malperfusion/accelerated villous maturation 1.jpg",
+      "imageHint": "maternal vascular malperfusion"
+    },
+    {
+      "id": "maternal-vascular-malperfusion--accelerated-villous-maturation-2",
+      "description": "Accelerated Villous Maturation 2",
+      "imageUrl": "/images/atlas/maternal vascular malperfusion/accelerated villous maturation 2.jpeg",
+      "imageHint": "maternal vascular malperfusion"
+    },
+    {
+      "id": "maternal-vascular-malperfusion--accelerated-villous-maturation-3",
+      "description": "Accelerated Villous Maturation 3",
+      "imageUrl": "/images/atlas/maternal vascular malperfusion/accelerated villous maturation 3.jpg",
+      "imageHint": "maternal vascular malperfusion"
+    },
+    {
+      "id": "maternal-vascular-malperfusion--chronic-perivasculitis-arteriopathy",
+      "description": "Chronic Perivasculitis Arteriopathy",
+      "imageUrl": "/images/atlas/maternal vascular malperfusion/chronic perivasculitis arteriopathy.jpg",
+      "imageHint": "maternal vascular malperfusion"
+    },
+    {
+      "id": "maternal-vascular-malperfusion--decidual-arteriopathy-fibrinoid-necrosis",
+      "description": "Decidual Arteriopathy Fibrinoid Necrosis",
+      "imageUrl": "/images/atlas/maternal vascular malperfusion/decidual arteriopathy - fibrinoid necrosis.JPG",
+      "imageHint": "maternal vascular malperfusion"
+    },
+    {
+      "id": "maternal-vascular-malperfusion--decidual-arteriopathy-mural-hypertrophy-2",
+      "description": "Decidual Arteriopathy Mural Hypertrophy 2",
+      "imageUrl": "/images/atlas/maternal vascular malperfusion/decidual arteriopathy - mural hypertrophy 2.jpg",
+      "imageHint": "maternal vascular malperfusion"
+    },
+    {
+      "id": "maternal-vascular-malperfusion--decidual-arteriopathy-mural-hypertrophy",
+      "description": "Decidual Arteriopathy Mural Hypertrophy",
+      "imageUrl": "/images/atlas/maternal vascular malperfusion/decidual arteriopathy - mural hypertrophy.jpg",
+      "imageHint": "maternal vascular malperfusion"
+    },
+    {
+      "id": "maternal-vascular-malperfusion--decidual-arteriopathy-1",
+      "description": "Decidual Arteriopathy 1",
+      "imageUrl": "/images/atlas/maternal vascular malperfusion/decidual arteriopathy 1.jpg",
+      "imageHint": "maternal vascular malperfusion"
+    },
+    {
+      "id": "maternal-vascular-malperfusion--decidual-arteriopathy-2",
+      "description": "Decidual Arteriopathy 2",
+      "imageUrl": "/images/atlas/maternal vascular malperfusion/decidual arteriopathy 2.jpg",
+      "imageHint": "maternal vascular malperfusion"
+    },
+    {
+      "id": "maternal-vascular-malperfusion--distal-villous-hypoplasia-2",
+      "description": "Distal Villous Hypoplasia 2",
+      "imageUrl": "/images/atlas/maternal vascular malperfusion/distal villous hypoplasia 2.JPG",
+      "imageHint": "maternal vascular malperfusion"
+    },
+    {
+      "id": "maternal-vascular-malperfusion--distal-villous-hypoplasia-3",
+      "description": "Distal Villous Hypoplasia 3",
+      "imageUrl": "/images/atlas/maternal vascular malperfusion/distal villous hypoplasia 3.jpg",
+      "imageHint": "maternal vascular malperfusion"
+    },
+    {
+      "id": "maternal-vascular-malperfusion--distal-villous-hypoplasia",
+      "description": "Distal Villous Hypoplasia",
+      "imageUrl": "/images/atlas/maternal vascular malperfusion/distal villous hypoplasia.jpg",
+      "imageHint": "maternal vascular malperfusion"
+    },
+    {
+      "id": "maternal-vascular-malperfusion--infarction-hematoma-2",
+      "description": "Infarction Hematoma 2",
+      "imageUrl": "/images/atlas/maternal vascular malperfusion/infarction hematoma 2.jpg",
+      "imageHint": "maternal vascular malperfusion"
+    },
+    {
+      "id": "maternal-vascular-malperfusion--infarction-hematoma-3",
+      "description": "Infarction Hematoma 3",
+      "imageUrl": "/images/atlas/maternal vascular malperfusion/infarction hematoma 3.JPG",
+      "imageHint": "maternal vascular malperfusion"
+    },
+    {
+      "id": "maternal-vascular-malperfusion--infarction-hematoma",
+      "description": "Infarction Hematoma",
+      "imageUrl": "/images/atlas/maternal vascular malperfusion/infarction hematoma.jpg",
+      "imageHint": "maternal vascular malperfusion"
+    },
+    {
+      "id": "maternal-vascular-malperfusion--villous-agglutination-2",
+      "description": "Villous Agglutination 2",
+      "imageUrl": "/images/atlas/maternal vascular malperfusion/villous agglutination 2.jpg",
+      "imageHint": "maternal vascular malperfusion"
+    },
+    {
+      "id": "maternal-vascular-malperfusion--villous-agglutination",
+      "description": "Villous Agglutination",
+      "imageUrl": "/images/atlas/maternal vascular malperfusion/villous agglutination.jpg",
+      "imageHint": "maternal vascular malperfusion"
+    },
+    {
+      "id": "maternal-vascular-malperfusion--villous-infarct",
+      "description": "Villous Infarct",
+      "imageUrl": "/images/atlas/maternal vascular malperfusion/villous infarct.JPG",
+      "imageHint": "maternal vascular malperfusion"
+    },
+    {
+      "id": "maternal-vascular-malperfusion--villous-infarction-high",
+      "description": "Villous Infarction High",
+      "imageUrl": "/images/atlas/maternal vascular malperfusion/villous infarction - high.jpg",
+      "imageHint": "maternal vascular malperfusion"
+    },
+    {
+      "id": "maternal-vascular-malperfusion--villous-infarction-low",
+      "description": "Villous Infarction Low",
+      "imageUrl": "/images/atlas/maternal vascular malperfusion/villous infarction - low.jpg",
+      "imageHint": "maternal vascular malperfusion"
+    },
+    {
+      "id": "chronic-inflammatory-lesions--basal-villitis",
+      "description": "Basal Villitis",
+      "imageUrl": "/images/atlas/chronic inflammatory lesions/basal villitis.jpg",
+      "imageHint": "chronic inflammatory lesions"
+    },
+    {
+      "id": "chronic-inflammatory-lesions--basal-villits",
+      "description": "Basal Villits",
+      "imageUrl": "/images/atlas/chronic inflammatory lesions/basal villits.JPG",
+      "imageHint": "chronic inflammatory lesions"
+    },
+    {
+      "id": "chronic-inflammatory-lesions--chorionic-histiocytic-hyperplasia-2",
+      "description": "Chorionic Histiocytic Hyperplasia (2)",
+      "imageUrl": "/images/atlas/chronic inflammatory lesions/chorionic histiocytic hyperplasia (2).jpg",
+      "imageHint": "chronic inflammatory lesions"
+    },
+    {
+      "id": "chronic-inflammatory-lesions--chorionic-histiocytic-hyperplasia",
+      "description": "Chorionic Histiocytic Hyperplasia",
+      "imageUrl": "/images/atlas/chronic inflammatory lesions/chorionic histiocytic hyperplasia.jpg",
+      "imageHint": "chronic inflammatory lesions"
+    },
+    {
+      "id": "chronic-inflammatory-lesions--chorionic-histioyctic-hyperplasia",
+      "description": "Chorionic Histioyctic Hyperplasia",
+      "imageUrl": "/images/atlas/chronic inflammatory lesions/chorionic histioyctic hyperplasia.JPG",
+      "imageHint": "chronic inflammatory lesions"
+    },
+    {
+      "id": "chronic-inflammatory-lesions--chorionic-villitis-with-stem-vessel-inflammation",
+      "description": "Chorionic Villitis With Stem Vessel Inflammation",
+      "imageUrl": "/images/atlas/chronic inflammatory lesions/chorionic villitis with stem vessel inflammation.jpg",
+      "imageHint": "chronic inflammatory lesions"
+    },
+    {
+      "id": "chronic-inflammatory-lesions--chorionic-villitis-with-stem-vessel-obliteration",
+      "description": "Chorionic Villitis With Stem Vessel Obliteration",
+      "imageUrl": "/images/atlas/chronic inflammatory lesions/chorionic villitis with stem vessel obliteration.jpg",
+      "imageHint": "chronic inflammatory lesions"
+    },
+    {
+      "id": "chronic-inflammatory-lesions--chronic-chorioamnionitis-2",
+      "description": "Chronic Chorioamnionitis (2)",
+      "imageUrl": "/images/atlas/chronic inflammatory lesions/chronic chorioamnionitis (2).jpg",
+      "imageHint": "chronic inflammatory lesions"
+    },
+    {
+      "id": "chronic-inflammatory-lesions--chronic-chorioamnionitis",
+      "description": "Chronic Chorioamnionitis",
+      "imageUrl": "/images/atlas/chronic inflammatory lesions/chronic chorioamnionitis.JPG",
+      "imageHint": "chronic inflammatory lesions"
+    },
+    {
+      "id": "chronic-inflammatory-lesions--chronic-villitis-figure",
+      "description": "Chronic Villitis Figure",
+      "imageUrl": "/images/atlas/chronic inflammatory lesions/chronic villitis figure.jpg",
+      "imageHint": "chronic inflammatory lesions"
+    },
+    {
+      "id": "chronic-inflammatory-lesions--chronic-villitis-high-grade",
+      "description": "Chronic Villitis High Grade",
+      "imageUrl": "/images/atlas/chronic inflammatory lesions/chronic villitis high grade.jpg",
+      "imageHint": "chronic inflammatory lesions"
+    },
+    {
+      "id": "chronic-inflammatory-lesions--chronic-villitis-low-grade-2",
+      "description": "Chronic Villitis Low Grade (2)",
+      "imageUrl": "/images/atlas/chronic inflammatory lesions/chronic villitis low grade (2).JPG",
+      "imageHint": "chronic inflammatory lesions"
+    },
+    {
+      "id": "chronic-inflammatory-lesions--chronic-villitis-low-grade-3",
+      "description": "Chronic Villitis Low Grade (3)",
+      "imageUrl": "/images/atlas/chronic inflammatory lesions/chronic villitis low grade (3).jpg",
+      "imageHint": "chronic inflammatory lesions"
+    },
+    {
+      "id": "chronic-inflammatory-lesions--chronic-villitis-low-grade",
+      "description": "Chronic Villitis Low Grade",
+      "imageUrl": "/images/atlas/chronic inflammatory lesions/chronic villitis low grade.jpg",
+      "imageHint": "chronic inflammatory lesions"
+    },
+    {
+      "id": "chronic-inflammatory-lesions--chronic-villitis-with-perivillous-fibrin-2",
+      "description": "Chronic Villitis With Perivillous Fibrin (2)",
+      "imageUrl": "/images/atlas/chronic inflammatory lesions/chronic villitis with perivillous fibrin (2).jpg",
+      "imageHint": "chronic inflammatory lesions"
+    },
+    {
+      "id": "chronic-inflammatory-lesions--chronic-villitis-with-perivillous-fibrin",
+      "description": "Chronic Villitis With Perivillous Fibrin",
+      "imageUrl": "/images/atlas/chronic inflammatory lesions/chronic villitis with perivillous fibrin.jpg",
+      "imageHint": "chronic inflammatory lesions"
+    },
+    {
+      "id": "chronic-inflammatory-lesions--eosinophilic-t-cell-chorionic-vasculitis-2",
+      "description": "Eosinophilic T Cell Chorionic Vasculitis (2)",
+      "imageUrl": "/images/atlas/chronic inflammatory lesions/eosinophilic T-cell chorionic vasculitis (2).jpg",
+      "imageHint": "chronic inflammatory lesions"
+    },
+    {
+      "id": "chronic-inflammatory-lesions--eosinophilic-t-cell-chorionic-vasculitis-thrombus",
+      "description": "Eosinophilic T Cell Chorionic Vasculitis Thrombus",
+      "imageUrl": "/images/atlas/chronic inflammatory lesions/eosinophilic T-cell chorionic vasculitis thrombus.jpg",
+      "imageHint": "chronic inflammatory lesions"
+    },
+    {
+      "id": "chronic-inflammatory-lesions--eosinophilic-t-cell-chorionic-vasculitis",
+      "description": "Eosinophilic T Cell Chorionic Vasculitis",
+      "imageUrl": "/images/atlas/chronic inflammatory lesions/eosinophilic T-cell chorionic vasculitis.jpg",
+      "imageHint": "chronic inflammatory lesions"
+    },
+    {
+      "id": "chronic-inflammatory-lesions--lymphoplasmacytic-deciduitis-2",
+      "description": "Lymphoplasmacytic Deciduitis (2)",
+      "imageUrl": "/images/atlas/chronic inflammatory lesions/lymphoplasmacytic deciduitis (2).jpg",
+      "imageHint": "chronic inflammatory lesions"
+    },
+    {
+      "id": "chronic-inflammatory-lesions--lymphoplasmacytic-deciduitis",
+      "description": "Lymphoplasmacytic Deciduitis",
+      "imageUrl": "/images/atlas/chronic inflammatory lesions/lymphoplasmacytic deciduitis.jpg",
+      "imageHint": "chronic inflammatory lesions"
+    },
+    {
+      "id": "chronic-inflammatory-lesions--plasma-cell-deciduitis-2",
+      "description": "Plasma Cell Deciduitis (2)",
+      "imageUrl": "/images/atlas/chronic inflammatory lesions/plasma cell deciduitis (2).JPG",
+      "imageHint": "chronic inflammatory lesions"
+    },
+    {
+      "id": "chronic-inflammatory-lesions--plasma-cell-deciduitis",
+      "description": "Plasma Cell Deciduitis",
+      "imageUrl": "/images/atlas/chronic inflammatory lesions/plasma cell deciduitis.jpg",
+      "imageHint": "chronic inflammatory lesions"
+    },
+    {
+      "id": "basal-plate-myometrial-fibers--bpmf-stage-2-2",
+      "description": "Bpmf Stage 2 (2)",
+      "imageUrl": "/images/atlas/Basal plate myometrial fibers/BPMF Stage 2 (2).JPG",
+      "imageHint": "Basal plate myometrial fibers"
+    },
+    {
+      "id": "basal-plate-myometrial-fibers--bpmf-stage-1-2",
+      "description": "Bpmf Stage 1 (2)",
+      "imageUrl": "/images/atlas/Basal plate myometrial fibers/BPMF stage 1 (2).JPG",
+      "imageHint": "Basal plate myometrial fibers"
+    },
+    {
+      "id": "basal-plate-myometrial-fibers--bpmf-stage-1",
+      "description": "Bpmf Stage 1",
+      "imageUrl": "/images/atlas/Basal plate myometrial fibers/BPMF stage 1.jpg",
+      "imageHint": "Basal plate myometrial fibers"
+    },
+    {
+      "id": "basal-plate-myometrial-fibers--bpmf-stage-2-3",
+      "description": "Bpmf Stage 2 (3)",
+      "imageUrl": "/images/atlas/Basal plate myometrial fibers/BPMF stage 2 (3).jpg",
+      "imageHint": "Basal plate myometrial fibers"
+    },
+    {
+      "id": "basal-plate-myometrial-fibers--bpmf-stage-2-desmin",
+      "description": "Bpmf Stage 2 Desmin",
+      "imageUrl": "/images/atlas/Basal plate myometrial fibers/BPMF stage 2 - desmin.jpg",
+      "imageHint": "Basal plate myometrial fibers"
+    },
+    {
+      "id": "basal-plate-myometrial-fibers--bpmf-stage-2",
+      "description": "Bpmf Stage 2",
+      "imageUrl": "/images/atlas/Basal plate myometrial fibers/BPMF stage 2.jpg",
+      "imageHint": "Basal plate myometrial fibers"
+    },
+    {
+      "id": "abruption--abruption-histology",
+      "description": "Abruption Histology",
+      "imageUrl": "/images/atlas/Abruption/abruption histology.jpg",
+      "imageHint": "Abruption"
+    },
+    {
+      "id": "abruption--chorioamnionitic-hemosiderosis",
+      "description": "Chorioamnionitic Hemosiderosis",
+      "imageUrl": "/images/atlas/Abruption/chorioamnionitic hemosiderosis.jpg",
+      "imageHint": "Abruption"
+    },
+    {
+      "id": "abruption--chorioamniotic-hemosiderosis",
+      "description": "Chorioamniotic Hemosiderosis",
+      "imageUrl": "/images/atlas/Abruption/chorioamniotic hemosiderosis.jpg",
+      "imageHint": "Abruption"
+    },
+    {
+      "id": "abruption--circumvallate-membrane-insertion-histology",
+      "description": "Circumvallate Membrane Insertion Histology",
+      "imageUrl": "/images/atlas/Abruption/circumvallate membrane insertion - histology.jpg",
+      "imageHint": "Abruption"
+    },
+    {
+      "id": "abruption--intravillous-hemorrhage-2",
+      "description": "Intravillous Hemorrhage (2)",
+      "imageUrl": "/images/atlas/Abruption/intravillous hemorrhage (2).jpg",
+      "imageHint": "Abruption"
+    },
+    {
+      "id": "abruption--intravillous-hemorrhage-3",
+      "description": "Intravillous Hemorrhage (3)",
+      "imageUrl": "/images/atlas/Abruption/intravillous hemorrhage (3).jpg",
+      "imageHint": "Abruption"
+    },
+    {
+      "id": "abruption--intravillous-hemorrhage",
+      "description": "Intravillous Hemorrhage",
+      "imageUrl": "/images/atlas/Abruption/intravillous hemorrhage.jpg",
+      "imageHint": "Abruption"
+    },
+    {
+      "id": "abruption--recent-marginal-retroplacental-hematoma",
+      "description": "Recent Marginal Retroplacental Hematoma",
+      "imageUrl": "/images/atlas/Abruption/recent marginal retroplacental hematoma.jpg",
+      "imageHint": "Abruption"
+    },
+    {
+      "id": "abruption--retroplacental-hematoma-with-infarction-2",
+      "description": "Retroplacental Hematoma With Infarction (2)",
+      "imageUrl": "/images/atlas/Abruption/retroplacental hematoma with infarction (2).jpg",
+      "imageHint": "Abruption"
+    },
+    {
+      "id": "abruption--retroplacental-hematoma-with-infarction",
+      "description": "Retroplacental Hematoma With Infarction",
+      "imageUrl": "/images/atlas/Abruption/retroplacental hematoma with infarction.jpg",
+      "imageHint": "Abruption"
+    },
+    {
+      "id": "villous-and-perivillous-changes--chorangioma-2",
+      "description": "Chorangioma (2)",
+      "imageUrl": "/images/atlas/Villous and perivillous changes/chorangioma (2).jpg",
+      "imageHint": "Villous and perivillous changes"
+    },
+    {
+      "id": "villous-and-perivillous-changes--chorangioma-with-infarction-changes",
+      "description": "Chorangioma With Infarction Changes",
+      "imageUrl": "/images/atlas/Villous and perivillous changes/chorangioma with infarction changes.JPG",
+      "imageHint": "Villous and perivillous changes"
+    },
+    {
+      "id": "villous-and-perivillous-changes--chorangioma",
+      "description": "Chorangioma",
+      "imageUrl": "/images/atlas/Villous and perivillous changes/chorangioma.JPG",
+      "imageHint": "Villous and perivillous changes"
+    },
+    {
+      "id": "villous-and-perivillous-changes--chorangiomatosis-2",
+      "description": "Chorangiomatosis (2)",
+      "imageUrl": "/images/atlas/Villous and perivillous changes/chorangiomatosis (2).jpg",
+      "imageHint": "Villous and perivillous changes"
+    },
+    {
+      "id": "villous-and-perivillous-changes--chorangiomatosis",
+      "description": "Chorangiomatosis",
+      "imageUrl": "/images/atlas/Villous and perivillous changes/chorangiomatosis.JPG",
+      "imageHint": "Villous and perivillous changes"
+    },
+    {
+      "id": "villous-and-perivillous-changes--chorangiosis-2",
+      "description": "Chorangiosis (2)",
+      "imageUrl": "/images/atlas/Villous and perivillous changes/chorangiosis (2).jpg",
+      "imageHint": "Villous and perivillous changes"
+    },
+    {
+      "id": "villous-and-perivillous-changes--chorangiosis-3",
+      "description": "Chorangiosis (3)",
+      "imageUrl": "/images/atlas/Villous and perivillous changes/chorangiosis (3).jpg",
+      "imageHint": "Villous and perivillous changes"
+    },
+    {
+      "id": "villous-and-perivillous-changes--chorangiosis",
+      "description": "Chorangiosis",
+      "imageUrl": "/images/atlas/Villous and perivillous changes/chorangiosis.JPG",
+      "imageHint": "Villous and perivillous changes"
+    },
+    {
+      "id": "villous-and-perivillous-changes--chronic-histiocytic-inflammation-cd68",
+      "description": "Chronic Histiocytic Inflammation Cd68",
+      "imageUrl": "/images/atlas/Villous and perivillous changes/chronic histiocytic inflammation - CD68.jpg",
+      "imageHint": "Villous and perivillous changes"
+    },
+    {
+      "id": "villous-and-perivillous-changes--chronic-histiocytic-inflammation",
+      "description": "Chronic Histiocytic Inflammation",
+      "imageUrl": "/images/atlas/Villous and perivillous changes/chronic histiocytic inflammation.jpg",
+      "imageHint": "Villous and perivillous changes"
+    },
+    {
+      "id": "villous-and-perivillous-changes--chronic-histiocytic-intervillositis",
+      "description": "Chronic Histiocytic Intervillositis",
+      "imageUrl": "/images/atlas/Villous and perivillous changes/chronic histiocytic intervillositis.jpg",
+      "imageHint": "Villous and perivillous changes"
+    },
+    {
+      "id": "villous-and-perivillous-changes--delayed-villous-maturation",
+      "description": "Delayed Villous Maturation",
+      "imageUrl": "/images/atlas/Villous and perivillous changes/delayed villous maturation.jpg",
+      "imageHint": "Villous and perivillous changes"
+    },
+    {
+      "id": "villous-and-perivillous-changes--increased-fetal-nrbcs",
+      "description": "Increased Fetal Nrbcs",
+      "imageUrl": "/images/atlas/Villous and perivillous changes/increased fetal nrbcs.jpg",
+      "imageHint": "Villous and perivillous changes"
+    },
+    {
+      "id": "villous-and-perivillous-changes--intervillous-sickle-cells",
+      "description": "Intervillous Sickle Cells",
+      "imageUrl": "/images/atlas/Villous and perivillous changes/intervillous sickle cells.JPG",
+      "imageHint": "Villous and perivillous changes"
+    },
+    {
+      "id": "villous-and-perivillous-changes--intervillous-thrombus-2",
+      "description": "Intervillous Thrombus (2)",
+      "imageUrl": "/images/atlas/Villous and perivillous changes/intervillous thrombus (2).jpg",
+      "imageHint": "Villous and perivillous changes"
+    },
+    {
+      "id": "villous-and-perivillous-changes--intervillous-thrombus-3",
+      "description": "Intervillous Thrombus (3)",
+      "imageUrl": "/images/atlas/Villous and perivillous changes/intervillous thrombus (3).jpg",
+      "imageHint": "Villous and perivillous changes"
+    },
+    {
+      "id": "villous-and-perivillous-changes--intervillous-thrombus",
+      "description": "Intervillous Thrombus",
+      "imageUrl": "/images/atlas/Villous and perivillous changes/intervillous thrombus.jpg",
+      "imageHint": "Villous and perivillous changes"
+    },
+    {
+      "id": "villous-and-perivillous-changes--maternal-perivillous-fibrin-deposition-high",
+      "description": "Maternal Perivillous Fibrin Deposition High",
+      "imageUrl": "/images/atlas/Villous and perivillous changes/maternal perivillous fibrin deposition - high.jpg",
+      "imageHint": "Villous and perivillous changes"
+    },
+    {
+      "id": "villous-and-perivillous-changes--maternal-perivillous-fibrin-deposition-low",
+      "description": "Maternal Perivillous Fibrin Deposition Low",
+      "imageUrl": "/images/atlas/Villous and perivillous changes/maternal perivillous fibrin deposition - low.jpg",
+      "imageHint": "Villous and perivillous changes"
+    },
+    {
+      "id": "villous-and-perivillous-changes--patchy-villous-edema-2",
+      "description": "Patchy Villous Edema (2)",
+      "imageUrl": "/images/atlas/Villous and perivillous changes/patchy villous edema (2).jpg",
+      "imageHint": "Villous and perivillous changes"
+    },
+    {
+      "id": "villous-and-perivillous-changes--patchy-villous-edema",
+      "description": "Patchy Villous Edema",
+      "imageUrl": "/images/atlas/Villous and perivillous changes/patchy villous edema.JPG",
+      "imageHint": "Villous and perivillous changes"
+    },
+    {
+      "id": "villous-and-perivillous-changes--perivillous-fibrin-plaque",
+      "description": "Perivillous Fibrin Plaque",
+      "imageUrl": "/images/atlas/Villous and perivillous changes/perivillous fibrin plaque.jpg",
+      "imageHint": "Villous and perivillous changes"
     }
   ]
 }

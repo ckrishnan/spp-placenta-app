@@ -66,12 +66,28 @@ const findingsSchema = z.object({
   hematomaParenchymalCompression: z.boolean().default(false),
   hematomaOverlyingInfarction: z.boolean().default(false),
 
-  // FVM Details
-  thrombusType: z.enum(['occlusive', 'non-occlusive']).optional(),
-  thrombusLocation: z.enum(['chorionic-plate', 'stem-vessel']).optional(),
-  intramuralFibrinLocation: z.enum(['chorionic-plate', 'stem-vessel']).optional(),
+  // FVM Details — multi-select so multiple types/locations can be recorded.
+  thrombusOcclusive: z.boolean().default(false),
+  thrombusNonOcclusive: z.boolean().default(false),
+  thrombusChorionicPlate: z.boolean().default(false),
+  thrombusStemVessel: z.boolean().default(false),
+  // Number of fetal vessel thrombi; "2+" upgrades FVM to high grade.
+  fetalThrombusCount: z.enum(['1', '2+']).optional(),
+  intramuralFibrinChorionicPlate: z.boolean().default(false),
+  intramuralFibrinStemVessel: z.boolean().default(false),
   avascularVilliSize: z.enum(['small', 'intermediate', 'large']).optional(),
+  // More than 45 foci of avascular villi upgrades FVM to high grade.
+  avascularVilliGT45: z.boolean().default(false),
   vsvkSize: z.enum(['small', 'intermediate', 'large']).optional(),
+
+  // Decidual arteriopathy subtypes (single finding, multiple selectable types).
+  decidualArteriopathyMuralHypertrophy: z.boolean().default(false),
+  decidualArteriopathyFibrinoidNecrosis: z.boolean().default(false),
+  decidualArteriopathyAcuteAtherosis: z.boolean().default(false),
+  decidualArteriopathyChronicPerivasculitis: z.boolean().default(false),
+  decidualArteriopathyNoRemodeling: z.boolean().default(false),
+  decidualArteriopathyArterialThrombosis: z.boolean().default(false),
+  decidualArteriopathyEndovascularTrophoblast: z.boolean().default(false),
 
   // BPMF Details
   bpmfFocality: z.string().optional(),

@@ -123,11 +123,23 @@ export function PlacentaPathfinder() {
     infarctExtent: '',
     hematomaParenchymalCompression: false,
     hematomaOverlyingInfarction: false,
-    thrombusType: undefined,
-    thrombusLocation: undefined,
-    intramuralFibrinLocation: undefined,
+    thrombusOcclusive: false,
+    thrombusNonOcclusive: false,
+    thrombusChorionicPlate: false,
+    thrombusStemVessel: false,
+    fetalThrombusCount: undefined,
+    intramuralFibrinChorionicPlate: false,
+    intramuralFibrinStemVessel: false,
     avascularVilliSize: undefined,
+    avascularVilliGT45: false,
     vsvkSize: undefined,
+    decidualArteriopathyMuralHypertrophy: false,
+    decidualArteriopathyFibrinoidNecrosis: false,
+    decidualArteriopathyAcuteAtherosis: false,
+    decidualArteriopathyChronicPerivasculitis: false,
+    decidualArteriopathyNoRemodeling: false,
+    decidualArteriopathyArterialThrombosis: false,
+    decidualArteriopathyEndovascularTrophoblast: false,
     bpmfFocality: undefined,
     bpmfLength: '',
     bpmfStage: undefined,
@@ -1170,7 +1182,7 @@ export function PlacentaPathfinder() {
                                                             </FormControl>
                                                             <span className="flex-grow">{alteration.name}</span>
                                                         </FormLabel>
-                                                        <div className="shrink-0 ml-auto pl-2">
+                                                        <div className="shrink-0 ml-auto pl-2 self-start">
                                                             <Popover>
                                                             <PopoverTrigger
                                                                 asChild
@@ -1341,57 +1353,62 @@ export function PlacentaPathfinder() {
                                                       </div>
                                                     )}
                                                     {alteration.id === 'fetal-vessel-thrombosis' && field.value && (
-                                                        <div className="space-y-4 p-2 pt-2 mt-2 border-t">
-                                                            <div className="grid grid-cols-2 gap-4">
-                                                                <FormField control={form.control} name={`findings.${activeTwinIndex}.thrombusType`} render={({ field }) => (
-                                                                    <FormItem><FormLabel>Type</FormLabel>
-                                                                    <Select onValueChange={field.onChange} value={field.value}>
-                                                                      <FormControl>
-                                                                        <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
-                                                                      </FormControl>
-                                                                      <SelectContent><SelectItem value="occlusive">Occlusive</SelectItem><SelectItem value="non-occlusive">Non-occlusive</SelectItem></SelectContent>
-                                                                    </Select>
-                                                                    </FormItem>
-                                                                )}/>
-                                                                <FormField control={form.control} name={`findings.${activeTwinIndex}.thrombusLocation`} render={({ field }) => (
-                                                                    <FormItem><FormLabel>Location</FormLabel>
-                                                                    <Select onValueChange={field.onChange} value={field.value}>
-                                                                      <FormControl>
-                                                                        <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
-                                                                      </FormControl>
-                                                                      <SelectContent><SelectItem value="chorionic-plate">Chorionic plate</SelectItem><SelectItem value="stem-vessel">Stem vessel</SelectItem></SelectContent>
-                                                                    </Select>
-                                                                    </FormItem>
-                                                                )}/>
-                                                            </div>
-                                                        </div>
-                                                    )}
-                                                    {alteration.id === 'intramural-fibrin-deposition' && field.value && (
-                                                        <div className="p-2 pt-2 mt-2 border-t">
-                                                            <FormField control={form.control} name={`findings.${activeTwinIndex}.intramuralFibrinLocation`} render={({ field }) => (
-                                                                <FormItem><FormLabel>Location</FormLabel>
+                                                        <div className="space-y-2 p-2 pt-2 mt-2 border-t">
+                                                            <p className="text-xs font-medium text-muted-foreground">Number:</p>
+                                                            <FormField control={form.control} name={`findings.${activeTwinIndex}.fetalThrombusCount`} render={({ field }) => (
+                                                                <FormItem><FormLabel>Count</FormLabel>
                                                                 <Select onValueChange={field.onChange} value={field.value}>
                                                                   <FormControl>
                                                                     <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
                                                                   </FormControl>
-                                                                  <SelectContent><SelectItem value="chorionic-plate">Chorionic plate</SelectItem><SelectItem value="stem-vessel">Stem vessel</SelectItem></SelectContent>
+                                                                  <SelectContent><SelectItem value="1">1</SelectItem><SelectItem value="2+">2+</SelectItem></SelectContent>
                                                                 </Select>
                                                                 </FormItem>
+                                                            )}/>
+                                                            <p className="text-xs font-medium text-muted-foreground">Type:</p>
+                                                            <FormField control={form.control} name={`findings.${activeTwinIndex}.thrombusOcclusive`} render={({ field }) => (
+                                                                <FormItem className="flex flex-row items-center space-x-3 space-y-0"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl><FormLabel className="font-normal text-xs">Occlusive</FormLabel></FormItem>
+                                                            )}/>
+                                                            <FormField control={form.control} name={`findings.${activeTwinIndex}.thrombusNonOcclusive`} render={({ field }) => (
+                                                                <FormItem className="flex flex-row items-center space-x-3 space-y-0"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl><FormLabel className="font-normal text-xs">Non-occlusive</FormLabel></FormItem>
+                                                            )}/>
+                                                            <p className="text-xs font-medium text-muted-foreground">Location:</p>
+                                                            <FormField control={form.control} name={`findings.${activeTwinIndex}.thrombusChorionicPlate`} render={({ field }) => (
+                                                                <FormItem className="flex flex-row items-center space-x-3 space-y-0"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl><FormLabel className="font-normal text-xs">Chorionic plate</FormLabel></FormItem>
+                                                            )}/>
+                                                            <FormField control={form.control} name={`findings.${activeTwinIndex}.thrombusStemVessel`} render={({ field }) => (
+                                                                <FormItem className="flex flex-row items-center space-x-3 space-y-0"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl><FormLabel className="font-normal text-xs">Stem vessel</FormLabel></FormItem>
+                                                            )}/>
+                                                        </div>
+                                                    )}
+                                                    {alteration.id === 'intramural-fibrin-deposition' && field.value && (
+                                                        <div className="space-y-2 p-2 pt-2 mt-2 border-t">
+                                                            <p className="text-xs font-medium text-muted-foreground">Location:</p>
+                                                            <FormField control={form.control} name={`findings.${activeTwinIndex}.intramuralFibrinChorionicPlate`} render={({ field }) => (
+                                                                <FormItem className="flex flex-row items-center space-x-3 space-y-0"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl><FormLabel className="font-normal text-xs">Chorionic plate vessels</FormLabel></FormItem>
+                                                            )}/>
+                                                            <FormField control={form.control} name={`findings.${activeTwinIndex}.intramuralFibrinStemVessel`} render={({ field }) => (
+                                                                <FormItem className="flex flex-row items-center space-x-3 space-y-0"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl><FormLabel className="font-normal text-xs">Stem vessels</FormLabel></FormItem>
                                                             )}/>
                                                         </div>
                                                     )}
                                                     {(alteration.id === 'avascular-villi' || alteration.id === 'villous-stromal-vascular-karyorrhexis') && field.value && (
-                                                        <div className="p-2 pt-2 mt-2 border-t">
+                                                        <div className="space-y-2 p-2 pt-2 mt-2 border-t">
                                                             <FormField control={form.control} name={alteration.id === 'avascular-villi' ? `findings.${activeTwinIndex}.avascularVilliSize` : `findings.${activeTwinIndex}.vsvkSize`} render={({ field }) => (
                                                                 <FormItem><FormLabel>Focus Size</FormLabel>
                                                                 <Select onValueChange={field.onChange} value={field.value}>
                                                                   <FormControl>
                                                                     <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
                                                                   </FormControl>
-                                                                  <SelectContent><SelectItem value="small">Small</SelectItem><SelectItem value="intermediate">Intermediate</SelectItem><SelectItem value="large">Large</SelectItem></SelectContent>
+                                                                  <SelectContent><SelectItem value="small">Small (&lt;5)</SelectItem><SelectItem value="intermediate">Intermediate (5-10)</SelectItem><SelectItem value="large">Large (&gt;10)</SelectItem></SelectContent>
                                                                 </Select>
                                                                 </FormItem>
                                                             )}/>
+                                                            {alteration.id === 'avascular-villi' && (
+                                                                <FormField control={form.control} name={`findings.${activeTwinIndex}.avascularVilliGT45`} render={({ field }) => (
+                                                                    <FormItem className="flex flex-row items-center space-x-3 space-y-0"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl><FormLabel className="font-normal text-xs">&gt;45 foci of avascular villi (high grade FVM)</FormLabel></FormItem>
+                                                                )}/>
+                                                            )}
                                                         </div>
                                                     )}
                                                     {alteration.id === 'basal-plate-myometrial-fibers' && field.value && (
@@ -1436,6 +1453,32 @@ export function PlacentaPathfinder() {
                                                             </FormItem>
                                                           )}/>
                                                         </div>
+                                                      </div>
+                                                    )}
+                                                    {alteration.id === 'decidual-arteriopathy' && field.value && (
+                                                      <div className="space-y-2 p-2 pt-2 mt-2 border-t">
+                                                        <p className="text-xs font-medium text-muted-foreground">Type(s):</p>
+                                                        <FormField control={form.control} name={`findings.${activeTwinIndex}.decidualArteriopathyMuralHypertrophy`} render={({ field }) => (
+                                                          <FormItem className="flex flex-row items-center space-x-3 space-y-0"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl><FormLabel className="font-normal text-xs">Mural hypertrophy</FormLabel></FormItem>
+                                                        )}/>
+                                                        <FormField control={form.control} name={`findings.${activeTwinIndex}.decidualArteriopathyFibrinoidNecrosis`} render={({ field }) => (
+                                                          <FormItem className="flex flex-row items-center space-x-3 space-y-0"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl><FormLabel className="font-normal text-xs">Fibrinoid necrosis</FormLabel></FormItem>
+                                                        )}/>
+                                                        <FormField control={form.control} name={`findings.${activeTwinIndex}.decidualArteriopathyAcuteAtherosis`} render={({ field }) => (
+                                                          <FormItem className="flex flex-row items-center space-x-3 space-y-0"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl><FormLabel className="font-normal text-xs">Acute atherosis</FormLabel></FormItem>
+                                                        )}/>
+                                                        <FormField control={form.control} name={`findings.${activeTwinIndex}.decidualArteriopathyChronicPerivasculitis`} render={({ field }) => (
+                                                          <FormItem className="flex flex-row items-center space-x-3 space-y-0"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl><FormLabel className="font-normal text-xs">Chronic perivasculitis</FormLabel></FormItem>
+                                                        )}/>
+                                                        <FormField control={form.control} name={`findings.${activeTwinIndex}.decidualArteriopathyNoRemodeling`} render={({ field }) => (
+                                                          <FormItem className="flex flex-row items-center space-x-3 space-y-0"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl><FormLabel className="font-normal text-xs">Absence of spiral artery remodeling</FormLabel></FormItem>
+                                                        )}/>
+                                                        <FormField control={form.control} name={`findings.${activeTwinIndex}.decidualArteriopathyArterialThrombosis`} render={({ field }) => (
+                                                          <FormItem className="flex flex-row items-center space-x-3 space-y-0"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl><FormLabel className="font-normal text-xs">Arterial thrombosis</FormLabel></FormItem>
+                                                        )}/>
+                                                        <FormField control={form.control} name={`findings.${activeTwinIndex}.decidualArteriopathyEndovascularTrophoblast`} render={({ field }) => (
+                                                          <FormItem className="flex flex-row items-center space-x-3 space-y-0"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl><FormLabel className="font-normal text-xs">Persistence of endovascular trophoblast in the third trimester</FormLabel></FormItem>
+                                                        )}/>
                                                       </div>
                                                     )}
                                                     {alteration.id === 'delayed-villous-maturation' && field.value && (

@@ -48,9 +48,9 @@ export function HowToModal() {
             <h3 className="font-bold">3. Select Pathologic Findings</h3>
             <p>
               Open each accordion section (Umbilical Cord, Membranes, etc.) and
-              check the boxes for identified alterations. Findings are color-coded by 
+              check the boxes for identified alterations. Findings are color-coded by{" "}
               <strong>Injury Pattern</strong> (e.g., MVM, FVM, Acute Chorioamnionitis). 
-              Hover over the info icon (<Info className="inline h-4 w-4" />) for descriptions and reference images.
+              Click the info icon (<Info className="inline h-4 w-4" />) for descriptions and reference images.
             </p>
           </div>
           <div className="space-y-2">

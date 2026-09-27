@@ -147,7 +147,10 @@ function generateMicroscopicForFinding(finding: Findings, isTwin: boolean, index
     if (finding.placentalVilli['stem-vessel-obliteration']) diskParts.push("There is obliteration of stem vessel lumens by fibromuscular sclerosis.");
     if (finding.placentalVilli['villous-stromal-vascular-karyorrhexis']) diskParts.push("There is villous stromal-vascular karyorrhexis characterized by fragmentation of fetal red blood cells and nuclear debris within villous capillaries.");
     if (finding.placentalVilli['intramural-fibrin-deposition']) {
-        const locationText = finding.intramuralFibrinLocation === 'chorionic-plate' ? 'chorionic plate vessels' : finding.intramuralFibrinLocation === 'stem-vessel' ? 'stem vessels' : 'large fetal vessels';
+        const locations: string[] = [];
+        if (finding.intramuralFibrinChorionicPlate) locations.push('chorionic plate vessels');
+        if (finding.intramuralFibrinStemVessel) locations.push('stem vessels');
+        const locationText = locations.length > 0 ? locations.join(' and ') : 'large fetal vessels';
         diskParts.push(`There is intramural fibrin deposition within the walls of ${locationText}.`);
     }
     if (finding.placentalVilli['low-grade-chronic-villitis']) {
@@ -189,9 +192,18 @@ function generateMicroscopicForFinding(finding: Findings, isTwin: boolean, index
     parts.push("The decidua show the expected transformation changes. No features of decidual arteriopathy or chronic deciduitis are identified.");
   } else {
     const deciduaParts: string[] = [];
-    if (finding.maternalDecidua['decidual-arteriopathy-atherosis']) deciduaParts.push("There is decidual arteriopathy with acute atherosis.");
-    if (finding.maternalDecidua['decidual-arteriopathy-mural-hypertrophy']) deciduaParts.push("There is decidual arteriopathy with mural hypertrophy.");
-    if (finding.maternalDecidua['decidual-arteriopathy-no-remodeling']) deciduaParts.push("There is decidual arteriopathy with failure of physiologic remodeling.");
+    if (finding.maternalDecidua['decidual-arteriopathy']) {
+      const subtypes: string[] = [];
+      if (finding.decidualArteriopathyMuralHypertrophy) subtypes.push("mural hypertrophy");
+      if (finding.decidualArteriopathyFibrinoidNecrosis) subtypes.push("fibrinoid necrosis");
+      if (finding.decidualArteriopathyAcuteAtherosis) subtypes.push("acute atherosis");
+      if (finding.decidualArteriopathyChronicPerivasculitis) subtypes.push("chronic perivasculitis");
+      if (finding.decidualArteriopathyNoRemodeling) subtypes.push("absence of spiral artery remodeling");
+      if (finding.decidualArteriopathyArterialThrombosis) subtypes.push("arterial thrombosis");
+      if (finding.decidualArteriopathyEndovascularTrophoblast) subtypes.push("persistence of endovascular trophoblast in the third trimester");
+      const subtypeText = subtypes.length > 0 ? ` (${subtypes.join(', ')})` : "";
+      deciduaParts.push(`There is decidual arteriopathy${subtypeText}.`);
+    }
     if (finding.maternalDecidua['lymphoplasmacytic-deciduitis']) deciduaParts.push("There is lymphoplasmacytic deciduitis with plasma cells.");
     if (finding.maternalDecidua['basal-plate-myometrial-fibers']) deciduaParts.push("Myometrial fibers are present at the basal plate.");
     
@@ -313,26 +325,45 @@ function generateFinalDiagnosisForFinding(finding: Findings, isTwin: boolean, in
                 text += ` (${details.join(', ')})`;
             }
 
-            if (id === 'fetal-vessel-thrombosis' && (finding.thrombusType || finding.thrombusLocation)) {
+            if (id === 'fetal-vessel-thrombosis') {
                 const details: string[] = [];
-                if (finding.thrombusType) details.push(finding.thrombusType);
-                if (finding.thrombusLocation) {
-                    details.push(finding.thrombusLocation === 'chorionic-plate' ? 'chorionic plate' : 'stem vessel');
-                }
-                text += ` (${details.join(', ')})`;
+                if (finding.fetalThrombusCount) details.push(`${finding.fetalThrombusCount} thrombus/thrombi`);
+                const types: string[] = [];
+                if (finding.thrombusOcclusive) types.push('occlusive');
+                if (finding.thrombusNonOcclusive) types.push('non-occlusive');
+                if (types.length > 0) details.push(types.join('/'));
+                const locations: string[] = [];
+                if (finding.thrombusChorionicPlate) locations.push('chorionic plate');
+                if (finding.thrombusStemVessel) locations.push('stem vessel');
+                if (locations.length > 0) details.push(`${locations.join('/')} vessel(s)`);
+                if (details.length > 0) text += ` (${details.join(', ')})`;
             }
 
-            if (id === 'avascular-villi' && finding.avascularVilliSize) text += ` (${finding.avascularVilliSize} focus)`;
+            if (id === 'avascular-villi') {
+                if (finding.avascularVilliSize) text += ` (${finding.avascularVilliSize} focus)`;
+                if (finding.avascularVilliGT45) text += ` (>45 foci)`;
+            }
 
             if (id === 'villous-stromal-vascular-karyorrhexis' && finding.vsvkSize) text += ` (${finding.vsvkSize} focus)`;
 
             if (id === 'intramural-fibrin-deposition') {
-                const loc = finding.intramuralFibrinLocation;
-                let locText = 'large fetal vessels';
-                if (loc === 'chorionic-plate') locText = 'chorionic plate vessels';
-                else if (loc === 'stem-vessel') locText = 'stem vessels';
-                
+                const locations: string[] = [];
+                if (finding.intramuralFibrinChorionicPlate) locations.push('chorionic plate vessels');
+                if (finding.intramuralFibrinStemVessel) locations.push('stem vessels');
+                const locText = locations.length > 0 ? locations.join(' and ') : 'large fetal vessels';
                 text = `Intramural fibrin deposition within ${locText}`;
+            }
+
+            if (id === 'decidual-arteriopathy') {
+                const subtypes: string[] = [];
+                if (finding.decidualArteriopathyMuralHypertrophy) subtypes.push('mural hypertrophy');
+                if (finding.decidualArteriopathyFibrinoidNecrosis) subtypes.push('fibrinoid necrosis');
+                if (finding.decidualArteriopathyAcuteAtherosis) subtypes.push('acute atherosis');
+                if (finding.decidualArteriopathyChronicPerivasculitis) subtypes.push('chronic perivasculitis');
+                if (finding.decidualArteriopathyNoRemodeling) subtypes.push('absence of spiral artery remodeling');
+                if (finding.decidualArteriopathyArterialThrombosis) subtypes.push('arterial thrombosis');
+                if (finding.decidualArteriopathyEndovascularTrophoblast) subtypes.push('persistence of endovascular trophoblast in the third trimester');
+                if (subtypes.length > 0) text += ` (${subtypes.join(', ')})`;
             }
 
             if (id === 'basal-plate-myometrial-fibers' && (finding.bpmfFocality || finding.bpmfStage || finding.bpmfLength)) {
@@ -525,10 +556,10 @@ function generateFinalDiagnosisForFinding(finding: Findings, isTwin: boolean, in
                 header = "Findings suggesting acute placental abruption" + (clinicalAbruption ? " [clinical history of abruption]" : "");
             }
             if (pid === 'FVM') {
-                const highGradeIds = ['fetal-vessel-thrombosis', 'stem-vessel-obliteration'];
-                const isHighGrade = 
-                  highGradeIds.some(id => finding.placentalVilli[id]) || 
-                  (finding.placentalVilli['avascular-villi'] && finding.avascularVilliSize === 'large');
+                const isHighGrade =
+                  finding.placentalVilli['stem-vessel-obliteration'] ||
+                  (finding.placentalVilli['fetal-vessel-thrombosis'] && finding.fetalThrombusCount === '2+') ||
+                  (finding.placentalVilli['avascular-villi'] && (finding.avascularVilliGT45 || finding.avascularVilliSize === 'large'));
                 
                 header = `Fetal vascular malperfusion lesions [${isHighGrade ? 'high grade' : 'low grade'}]`;
             }
