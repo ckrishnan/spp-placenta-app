@@ -36,6 +36,7 @@ import {
 import Image from "next/image";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import type { AtlasChapter, AtlasImage } from "@/lib/atlas-types";
+import { WatermarkOverlay, imageCopyGuards } from "./watermark";
 
 export function AtlasModal() {
   const [open, setOpen] = useState(false);
@@ -284,7 +285,9 @@ export function AtlasModal() {
                                 className="object-cover"
                                 data-ai-hint={image.imageHint || undefined}
                                 sizes="(max-width: 640px) 100vw, 50vw"
+                                {...imageCopyGuards}
                               />
+                              <WatermarkOverlay />
                             </div>
                           </CardContent>
                         </Card>
@@ -391,11 +394,12 @@ export function AtlasModal() {
                     src={selectedImage.imageUrl}
                     alt={selectedImage.description}
                     fill
-                    draggable={false}
                     className="object-contain"
                     sizes="96vw"
+                    {...imageCopyGuards}
                   />
                 </div>
+                <WatermarkOverlay />
               </div>
 
               {/* Bottom bar: hint + prev/next */}

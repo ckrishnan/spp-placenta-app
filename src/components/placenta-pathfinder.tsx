@@ -60,6 +60,7 @@ import { formSchema, type FormValues, type Findings } from "@/lib/schema";
 import { generateMicroscopicDescription, generateFinalDiagnosis } from "@/lib/report-generator";
 import { PlaceHolderImages, type ImagePlaceholder } from "@/lib/placeholder-images";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "./ui/carousel";
+import { WatermarkOverlay, imageCopyGuards } from "./watermark";
 import {
   Accordion,
   AccordionContent,
@@ -1218,7 +1219,7 @@ export function PlacentaPathfinder() {
                                                                         <CarouselContent>
                                                                             {images.map((image, index) => (
                                                                             <CarouselItem key={index}>
-                                                                                <div className="rounded-md overflow-hidden border">
+                                                                                <div className="relative rounded-md overflow-hidden border">
                                                                                 <Image
                                                                                     src={image.imageUrl}
                                                                                     alt={image.description}
@@ -1226,7 +1227,9 @@ export function PlacentaPathfinder() {
                                                                                     height={225}
                                                                                     className="object-cover w-full"
                                                                                     data-ai-hint={image.imageHint}
+                                                                                    {...imageCopyGuards}
                                                                                 />
+                                                                                <WatermarkOverlay />
                                                                                 </div>
                                                                             </CarouselItem>
                                                                             ))}
