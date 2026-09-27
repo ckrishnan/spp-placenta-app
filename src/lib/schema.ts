@@ -104,6 +104,19 @@ export const formSchema = z.object({
   chorionicity: z.enum(['monochorionic', 'dichorionic']).optional(),
   amnionicity: z.enum(['monoamniotic', 'diamniotic']).optional(),
   modeOfDelivery: z.enum(['vaginal', 'cesarean']).optional(),
+
+  // Combined weight of all twin placentas, in grams. The twin reference tables are
+  // combined-weight tables, so this is the only weight used for twin percentiles.
+  // Individual per-twin weights are still reported when provided.
+  combinedTwinWeight: z.coerce.number().optional(),
+
+  // Monochorionic twin vascular territory / anastomoses (recommended elements,
+  // reported once for the shared placenta rather than per twin).
+  vascularShareTwinA: z.string().optional(),
+  vascularShareTwinB: z.string().optional(),
+  vascularAnastomosesPresent: z.boolean().default(false),
+  vascularAnastomosesCount: z.string().optional(),
+  vascularAnastomosesType: z.string().optional(),
   
   // Clinical Context
   clinicalAbruption: z.boolean().default(false),
@@ -115,24 +128,45 @@ export const formSchema = z.object({
   findings: z.array(findingsSchema).min(1).max(2),
   reportFormat: z.string().default('option1_A'),
 }).superRefine((data, ctx) => {
-  // Validate first finding (always required)
-  const weight1 = data.findings[0]?.placentalWeight;
-  if (weight1 === undefined || isNaN(weight1) || weight1 < 50 || weight1 > 1500) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      message: "Placental weight must be between 50g and 1500g",
-      path: ["findings", 0, "placentalWeight"],
-    });
+  // Per-twin weights are optional in twin mode (placentas are not always weighed
+  // separately), so only a singleton requires a weight on the first finding.
+  if (!data.isTwin) {
+    const weight1 = data.findings[0]?.placentalWeight;
+    if (weight1 === undefined || isNaN(weight1) || weight1 < 50 || weight1 > 1500) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Placental weight must be between 50g and 1500g",
+        path: ["findings", 0, "placentalWeight"],
+      });
+    }
   }
-  
-  // Validate second finding only if isTwin is true
+
   if (data.isTwin) {
+    // Any per-twin weight that is entered must still be in range.
+    const weight1 = data.findings[0]?.placentalWeight;
+    if (weight1 !== undefined && !isNaN(weight1) && (weight1 < 50 || weight1 > 1500)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Placental weight must be between 50g and 1500g",
+        path: ["findings", 0, "placentalWeight"],
+      });
+    }
     const weight2 = data.findings[1]?.placentalWeight;
-    if (weight2 === undefined || isNaN(weight2) || weight2 < 50 || weight2 > 1500) {
+    if (weight2 !== undefined && !isNaN(weight2) && (weight2 < 50 || weight2 > 1500)) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: "Placental weight must be between 50g and 1500g",
         path: ["findings", 1, "placentalWeight"],
+      });
+    }
+
+    // Twin percentiles use the combined weight, so it is required for twin cases.
+    const combined = data.combinedTwinWeight;
+    if (combined === undefined || isNaN(combined) || combined < 50 || combined > 3000) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Combined twin weight is required (50g to 3000g)",
+        path: ["combinedTwinWeight"],
       });
     }
   }

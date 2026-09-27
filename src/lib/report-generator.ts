@@ -228,10 +228,23 @@ function generateFinalDiagnosisForFinding(finding: Findings, isTwin: boolean, in
   
   if (twinPrefix) lines.push(twinPrefix);
 
+  // Individual twin weights are reported when available, but twin percentiles are
+  // derived from the combined weight of all twin placentas (see the twin header block),
+  // because the reference tables are combined-weight tables.
   const birthType = isTwin ? 'twin' : 'singleton';
-  const percentile = calculatePercentileRank(Number(finding.placentalWeight), ga, birthType, weightReference);
+  const percentile = isTwin
+    ? null
+    : calculatePercentileRank(Number(finding.placentalWeight), ga, birthType, weightReference);
   const percentileText = (percentile && percentile !== 'N/A') ? ` (${percentile} percentile)` : '';
-  lines.push(`- Placental weight: ${finding.placentalWeight} g${percentileText}`);
+  if (finding.placentalWeight !== undefined && finding.placentalWeight !== null && `${finding.placentalWeight}` !== '') {
+    lines.push(`- Placental weight: ${finding.placentalWeight} g${percentileText}`);
+  }
+
+  // Completeness of the maternal surface (manuscript header element).
+  if (finding.completenessOfMaternalSurface) {
+    const surfaceLabel = finding.completenessOfMaternalSurface.charAt(0).toUpperCase() + finding.completenessOfMaternalSurface.slice(1);
+    lines.push(`- Maternal surface: ${surfaceLabel}`);
+  }
 
   const findingsList: { patternId: string | null; text: string; id?: string }[] = [];
 
@@ -555,18 +568,30 @@ export function generateFinalDiagnosis(values: FormValues, weightReference: Weig
   let header = '';
   const placentaType = values.isTwin ? 'TWIN PLACENTA' : 'PLACENTA';
 
+  // Mode of delivery (manuscript header element, optional).
+  const modeOfDeliveryCaps = values.modeOfDelivery === 'vaginal'
+    ? ', VAGINAL DELIVERY'
+    : values.modeOfDelivery === 'cesarean'
+      ? ', CESAREAN SECTION'
+      : '';
+  const modeOfDeliverySentence = values.modeOfDelivery === 'vaginal'
+    ? ', vaginal delivery'
+    : values.modeOfDelivery === 'cesarean'
+      ? ', cesarean section'
+      : '';
+
   if (format.startsWith('option1_')) {
     const partLetter = format.split('_')[1];
-    header = `${partLetter}. ${placentaType}, DELIVERY AT ${gaText} WEEKS:`;
+    header = `${partLetter}. ${placentaType}, DELIVERY AT ${gaText} WEEKS${modeOfDeliveryCaps}:`;
   } else if (format === 'option2') {
-    header = `${placentaType}, DELIVERY AT ${gaText} WEEKS:`;
+    header = `${placentaType}, DELIVERY AT ${gaText} WEEKS${modeOfDeliveryCaps}:`;
   } else if (format === 'option3') {
     // Option 3: Sentence case
     const sentencePlacentaType = values.isTwin ? 'Twin placenta' : 'Placenta';
-    header = `${sentencePlacentaType}, Delivery at ${gaText} weeks:`;
+    header = `${sentencePlacentaType}, Delivery at ${gaText} weeks${modeOfDeliverySentence}:`;
   } else {
     // Fallback
-    header = `${placentaType}, DELIVERY AT ${gaText} WEEKS:`;
+    header = `${placentaType}, DELIVERY AT ${gaText} WEEKS${modeOfDeliveryCaps}:`;
   }
 
   lines.push(header);
@@ -575,6 +600,39 @@ export function generateFinalDiagnosis(values: FormValues, weightReference: Weig
     lines.push('');
     if (values.chorionicity) lines.push(`- Chorionicity: ${values.chorionicity.charAt(0).toUpperCase() + values.chorionicity.slice(1)}`);
     if (values.amnionicity) lines.push(`- Amnionicity: ${values.amnionicity.charAt(0).toUpperCase() + values.amnionicity.slice(1)}`);
+
+    // Combined weight of all twin placentas drives the twin percentile (the twin
+    // reference tables are combined-weight tables).
+    const combinedWeight = Number(values.combinedTwinWeight);
+    if (combinedWeight > 0) {
+      const combinedPercentile = calculatePercentileRank(combinedWeight, gaWeeks + gaDays / 7, 'twin', weightReference);
+      const combinedPercentileText = (combinedPercentile && combinedPercentile !== 'N/A') ? ` (${combinedPercentile} percentile)` : '';
+      lines.push(`- Combined twin placental weight: ${combinedWeight} g${combinedPercentileText}`);
+    }
+
+    // Monochorionic placentas: vascular territory share and anastomoses (recommended elements).
+    const isMonochorionic = values.chorionicity === 'monochorionic';
+    if (isMonochorionic) {
+      if (values.vascularShareTwinA || values.vascularShareTwinB) {
+        const shareParts: string[] = [];
+        if (values.vascularShareTwinA) shareParts.push(`Twin A ${values.vascularShareTwinA}`);
+        if (values.vascularShareTwinB) shareParts.push(`Twin B ${values.vascularShareTwinB}`);
+        lines.push(`- Vascular territory share: ${shareParts.join(', ')}`);
+      }
+      if (values.vascularAnastomosesPresent) {
+        const detail: string[] = [];
+        const count = Number(values.vascularAnastomosesCount);
+        if (values.vascularAnastomosesCount) {
+          detail.push(Number.isFinite(count) && count > 0
+            ? `${values.vascularAnastomosesCount} ${count === 1 ? 'anastomosis' : 'anastomoses'}`
+            : values.vascularAnastomosesCount);
+        }
+        if (values.vascularAnastomosesType) detail.push(values.vascularAnastomosesType);
+        lines.push(`- Vascular anastomoses: present${detail.length > 0 ? ` (${detail.join(', ')})` : ''}`);
+      } else {
+        lines.push(`- Vascular anastomoses: none identified`);
+      }
+    }
     lines.push('');
   }
 

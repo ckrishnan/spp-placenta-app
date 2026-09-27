@@ -150,6 +150,18 @@ export function PlacentaPathfinder() {
     additionalMicroscopicFindings: "",
   };
 
+  // Deep copy of the per-twin defaults. A shallow copy (spread) would leave the two
+  // twins sharing the same nested objects, so editing Twin B could mutate Twin A.
+  const makeDefaultFinding = (): Findings => ({
+    ...defaultFindings,
+    grossFindings: { ...defaultFindings.grossFindings },
+    umbilicalCord: { ...defaultFindings.umbilicalCord },
+    membranes: { ...defaultFindings.membranes },
+    placentalVilli: { ...defaultFindings.placentalVilli },
+    maternalDecidua: { ...defaultFindings.maternalDecidua },
+    specificInfections: { ...defaultFindings.specificInfections },
+  });
+
   const defaultValues: Partial<FormValues> = {
     gestationalAgeWeeks: undefined,
     gestationalAgeDays: undefined,
@@ -157,13 +169,19 @@ export function PlacentaPathfinder() {
     chorionicity: undefined,
     amnionicity: undefined,
     modeOfDelivery: undefined,
+    combinedTwinWeight: undefined,
+    vascularShareTwinA: '',
+    vascularShareTwinB: '',
+    vascularAnastomosesPresent: false,
+    vascularAnastomosesCount: '',
+    vascularAnastomosesType: undefined,
     clinicalAbruption: false,
     clinicalPAS: false,
     clinicalIUFD: false,
     clinicalIAI: false,
     clinicalMSF: false,
     reportFormat: 'option1_A',
-    findings: [defaultFindings, { ...defaultFindings }],
+    findings: [makeDefaultFinding(), makeDefaultFinding()],
   };
 
   const form = useForm<FormValues>({
@@ -174,6 +192,10 @@ export function PlacentaPathfinder() {
 
   const { watch } = form;
   const isTwin = watch("isTwin");
+  // Monochorionic twin placentas require vascular territory / anastomoses reporting.
+  const chorionicity = useWatch({ control: form.control, name: 'chorionicity' });
+  const anastomosesPresent = useWatch({ control: form.control, name: 'vascularAnastomosesPresent' });
+  const isMonochorionic = isTwin && chorionicity === 'monochorionic';
 
   // Watch the active twin's finding so we can show the MIR/FIR stages calculated
   // from the selected findings (the user remains free to choose any stage).
@@ -209,6 +231,32 @@ export function PlacentaPathfinder() {
     }
   }, []);
 
+  // Percentile calculation.
+  // Twin reference tables are *combined*-weight tables, so a twin percentile is
+  // only meaningful for the combined weight of all twin placentas. Individual
+  // per-twin weights are reported but deliberately not used for percentiles.
+  const computePercentiles = (values: Partial<FormValues>, reference: WeightReference): [string | null, string | null] => {
+    const weeks = Number(values.gestationalAgeWeeks);
+    if (!(weeks >= 19)) return [null, null];
+    const ga = weeks + (Number(values.gestationalAgeDays) || 0) / 7;
+
+    if (values.isTwin) {
+      const combined = Number(values.combinedTwinWeight);
+      if (!(combined > 0)) return [null, null];
+      const percentile = calculatePercentileRank(combined, ga, 'twin', reference);
+      return [percentile, percentile];
+    }
+
+    const result: [string | null, string | null] = [null, null];
+    (values.findings || []).forEach((finding, index) => {
+      const weight = Number(finding?.placentalWeight);
+      if (weight > 0) {
+        result[index] = calculatePercentileRank(weight, ga, 'singleton', reference);
+      }
+    });
+    return result;
+  };
+
   const handleWeightReferenceChange = (value: WeightReference) => {
     // Radix Select can fire onValueChange with an empty/invalid value on mount;
     // ignore anything that isn't a supported reference so we never clobber the
@@ -225,23 +273,7 @@ export function PlacentaPathfinder() {
     // Recompute the displayed percentiles and regenerate any existing report
     // using the newly selected reference.
     const values = form.getValues();
-    const weeks = Number(values.gestationalAgeWeeks);
-    if (weeks >= 19 && values.findings) {
-      const birthType = values.isTwin ? 'twin' : 'singleton';
-      const ga = weeks + (Number(values.gestationalAgeDays) || 0) / 7;
-      const newPercentiles: [string | null, string | null] = [null, null];
-      values.findings.forEach((finding, index) => {
-        if (finding && finding.placentalWeight) {
-          const weight = Number(finding.placentalWeight);
-          if (weight > 0) {
-            newPercentiles[index] = calculatePercentileRank(weight, ga, birthType, value);
-          }
-        }
-      });
-      setPercentiles(newPercentiles);
-    } else {
-      setPercentiles([null, null]);
-    }
+    setPercentiles(computePercentiles(values, value));
 
     if (report) {
       const finalDiagnosis = generateFinalDiagnosis(values as FormValues, value);
@@ -251,28 +283,9 @@ export function PlacentaPathfinder() {
 
   useEffect(() => {
     const subscription = watch((value) => {
-      const { gestationalAgeWeeks, gestationalAgeDays, isTwin, findings, reportFormat } = value;
-      
-      const weeks = Number(gestationalAgeWeeks);
-      const birthType = isTwin ? 'twin' : 'singleton';
+      const { reportFormat } = value;
 
-      if (weeks >= 19 && findings) {
-        const ga = weeks + (Number(gestationalAgeDays) || 0) / 7;
-        const newPercentiles: [string | null, string | null] = [null, null];
-        
-        findings.forEach((finding, index) => {
-            if (finding && finding.placentalWeight) {
-                const weight = Number(finding.placentalWeight);
-                if (weight > 0) {
-                  const p = calculatePercentileRank(weight, ga, birthType, weightReference);
-                  newPercentiles[index] = p;
-                }
-            }
-        });
-        setPercentiles(newPercentiles);
-      } else {
-        setPercentiles([null, null]);
-      }
+      setPercentiles(computePercentiles(value as Partial<FormValues>, weightReference));
 
       // Regenerate report if it already exists and formatting options changed
       if (report) {
@@ -299,7 +312,9 @@ export function PlacentaPathfinder() {
     console.error('Form validation errors:', JSON.stringify(errors, null, 2));
     toast({
       title: "Validation Error",
-      description: "Please ensure GA Weeks and Placental Weight are filled correctly.",
+      description: isTwin
+        ? "Please enter the gestational age and the combined placental weight for all twins."
+        : "Please ensure GA Weeks and Placental Weight are filled correctly.",
       variant: "destructive",
     });
   };
@@ -363,10 +378,12 @@ export function PlacentaPathfinder() {
   };
 
   const handleClearAllSelections = () => {
-    // Full reset: clears header, clinical context, gross + microscopic findings,
-    // specific infections, and twin settings for all sections.
+    // Full reset: clears header (including mode of delivery and completeness of the
+    // maternal surface, which are controlled selects), clinical context, gross +
+    // microscopic findings, specific infections, and twin settings.
     form.reset(defaultValues);
     setActiveTwinIndex(0);
+    setPercentiles([null, null]);
     setReport('');
     setMicroscopicDescription("");
   };
@@ -434,19 +451,54 @@ export function PlacentaPathfinder() {
                       </FormItem>
                     )}
                   />
-                  <FormField
-                    control={form.control}
-                    name={`findings.${activeTwinIndex}.placentalWeight`}
-                    render={({ field }) => (
-                      <FormItem>
-                         <FormLabel>Placental Weight (g)</FormLabel>
-                        <FormControl>
-                          <Input type="number" placeholder="e.g., 450" {...field} value={field.value ?? ''} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                </div>
+
+                {/* Twin-only header fields. Rendered in their own keyed block so switching
+                    tabs remounts the inputs and each twin keeps its own values. */}
+                {isTwin && (
+                  <div key={`twin-header-${activeTwinIndex}`} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <FormField
+                      control={form.control}
+                      name={`findings.${activeTwinIndex}.placentalWeight`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>{`Twin ${activeTwinIndex === 0 ? 'A' : 'B'} Placental Weight (g)`} <span className="text-muted-foreground font-normal">(Optional)</span></FormLabel>
+                          <FormControl>
+                            <Input type="number" placeholder="e.g., 450" {...field} value={field.value ?? ''} />
+                          </FormControl>
+                          <FormDescription className="text-xs">
+                            Reported per twin when separate weights are available. Twin percentiles use the combined weight below.
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name={`findings.${activeTwinIndex}.completenessOfMaternalSurface`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Completeness of Maternal Surface <span className="text-muted-foreground font-normal">(Optional)</span></FormLabel>
+                          <Select onValueChange={field.onChange} value={field.value ?? ''}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select completeness" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="complete">Complete</SelectItem>
+                              <SelectItem value="incomplete">Incomplete</SelectItem>
+                              <SelectItem value="disrupted">Disrupted</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                )}
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   <FormField
                     control={form.control}
                     name="isTwin"
@@ -472,7 +524,7 @@ export function PlacentaPathfinder() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Mode of Delivery <span className="text-muted-foreground font-normal">(Optional)</span></FormLabel>
-                        <Select onValueChange={field.onChange} value={field.value}>
+                        <Select onValueChange={field.onChange} value={field.value ?? ''}>
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="Select mode of delivery" />
@@ -487,6 +539,47 @@ export function PlacentaPathfinder() {
                       </FormItem>
                     )}
                   />
+
+                  {/* Singleton weight/surface. In twin mode these live in the twin header block instead. */}
+                  {!isTwin && (
+                    <>
+                      <FormField
+                        control={form.control}
+                        name="findings.0.placentalWeight"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Placental Weight (g)</FormLabel>
+                            <FormControl>
+                              <Input type="number" placeholder="e.g., 450" {...field} value={field.value ?? ''} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="findings.0.completenessOfMaternalSurface"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Completeness of Maternal Surface <span className="text-muted-foreground font-normal">(Optional)</span></FormLabel>
+                            <Select onValueChange={field.onChange} value={field.value ?? ''}>
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select completeness" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                <SelectItem value="complete">Complete</SelectItem>
+                                <SelectItem value="incomplete">Incomplete</SelectItem>
+                                <SelectItem value="disrupted">Disrupted</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </>
+                  )}
                   <FormItem>
                     <FormLabel>Weight Reference <span className="text-muted-foreground font-normal">(persisted)</span></FormLabel>
                     <Select value={weightReference} onValueChange={(v) => handleWeightReferenceChange(v as WeightReference)}>
@@ -504,34 +597,15 @@ export function PlacentaPathfinder() {
                       Choose the singleton weight reference used for percentile calculations. Your choice is remembered on this device.
                     </FormDescription>
                   </FormItem>
-                  <FormField
-                    control={form.control}
-                    name={`findings.${activeTwinIndex}.completenessOfMaternalSurface`}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Completeness of Maternal Surface <span className="text-muted-foreground font-normal">(Optional)</span></FormLabel>
-                        <Select onValueChange={field.onChange} value={field.value}>
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select completeness" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="complete">Complete</SelectItem>
-                            <SelectItem value="incomplete">Incomplete</SelectItem>
-                            <SelectItem value="disrupted">Disrupted</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
                 </div>
               </CardContent>
               <CardFooter className="border-t pt-4">
                 <div className="text-sm text-muted-foreground font-medium">
                   Estimated Placental Weight Percentile: {' '}
                   <span className="font-bold text-accent-foreground">{percentiles[activeTwinIndex] ?? 'N/A'}</span>
+                  {isTwin && (
+                    <span className="ml-2 font-normal">(from combined twin weight)</span>
+                  )}
                 </div>
               </CardFooter>
             </Card>
@@ -556,7 +630,7 @@ export function PlacentaPathfinder() {
                               render={({ field }) => (
                                 <FormItem>
                                   <FormLabel>Chorionicity</FormLabel>
-                                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                  <Select onValueChange={field.onChange} value={field.value ?? ''}>
                                     <FormControl>
                                       <SelectTrigger>
                                         <SelectValue placeholder="Select chorionicity" />
@@ -577,7 +651,7 @@ export function PlacentaPathfinder() {
                               render={({ field }) => (
                                 <FormItem>
                                   <FormLabel>Amnionicity</FormLabel>
-                                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                  <Select onValueChange={field.onChange} value={field.value ?? ''}>
                                     <FormControl>
                                       <SelectTrigger>
                                         <SelectValue placeholder="Select amnionicity" />
@@ -592,6 +666,107 @@ export function PlacentaPathfinder() {
                                 </FormItem>
                               )}
                             />
+                            <FormField
+                              control={form.control}
+                              name="combinedTwinWeight"
+                              render={({ field }) => (
+                                <FormItem className="sm:col-span-2">
+                                  <FormLabel>Combined Placental Weight, all twins (g) <span className="text-muted-foreground font-normal">(Optional)</span></FormLabel>
+                                  <FormControl>
+                                    <Input type="number" placeholder="e.g., 700" {...field} value={field.value ?? ''} />
+                                  </FormControl>
+                                  <FormDescription className="text-xs">
+                                    Used for the twin weight percentile. The twin reference tables are combined-weight tables.
+                                  </FormDescription>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+
+                            {isMonochorionic && (
+                              <>
+                                <FormField
+                                  control={form.control}
+                                  name="vascularShareTwinA"
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormLabel>Twin A Vascular Territory Share <span className="text-muted-foreground font-normal">(Optional)</span></FormLabel>
+                                      <FormControl>
+                                        <Input placeholder="e.g., 60%" {...field} />
+                                      </FormControl>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+                                <FormField
+                                  control={form.control}
+                                  name="vascularShareTwinB"
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormLabel>Twin B Vascular Territory Share <span className="text-muted-foreground font-normal">(Optional)</span></FormLabel>
+                                      <FormControl>
+                                        <Input placeholder="e.g., 40%" {...field} />
+                                      </FormControl>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+                                <FormField
+                                  control={form.control}
+                                  name="vascularAnastomosesPresent"
+                                  render={({ field }) => (
+                                    <FormItem className="sm:col-span-2 rounded-md border p-0">
+                                      <FormLabel className="flex flex-row items-center space-x-3 space-y-0 p-4 font-normal cursor-pointer">
+                                        <FormControl>
+                                          <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                                        </FormControl>
+                                        <span>Vascular anastomoses present</span>
+                                      </FormLabel>
+                                    </FormItem>
+                                  )}
+                                />
+                                {anastomosesPresent && (
+                                  <>
+                                    <FormField
+                                      control={form.control}
+                                      name="vascularAnastomosesCount"
+                                      render={({ field }) => (
+                                        <FormItem>
+                                          <FormLabel>Number of Anastomoses <span className="text-muted-foreground font-normal">(Optional)</span></FormLabel>
+                                          <FormControl>
+                                            <Input placeholder="e.g., 2" {...field} />
+                                          </FormControl>
+                                          <FormMessage />
+                                        </FormItem>
+                                      )}
+                                    />
+                                    <FormField
+                                      control={form.control}
+                                      name="vascularAnastomosesType"
+                                      render={({ field }) => (
+                                        <FormItem>
+                                          <FormLabel>Type <span className="text-muted-foreground font-normal">(Optional)</span></FormLabel>
+                                          <Select onValueChange={field.onChange} value={field.value ?? ''}>
+                                            <FormControl>
+                                              <SelectTrigger>
+                                                <SelectValue placeholder="Select type" />
+                                              </SelectTrigger>
+                                            </FormControl>
+                                            <SelectContent>
+                                              <SelectItem value="arterio-arterial">Arterio-arterial</SelectItem>
+                                              <SelectItem value="veno-venous">Veno-venous</SelectItem>
+                                              <SelectItem value="arterio-venous">Arterio-venous</SelectItem>
+                                              <SelectItem value="mixed">Mixed</SelectItem>
+                                            </SelectContent>
+                                          </Select>
+                                          <FormMessage />
+                                        </FormItem>
+                                      )}
+                                    />
+                                  </>
+                                )}
+                              </>
+                            )}
                           </div>
                         </AccordionContent>
                     </AccordionItem>
@@ -762,7 +937,9 @@ export function PlacentaPathfinder() {
                       </div>
                     </AccordionTrigger>
                     <AccordionContent className="p-4 pt-0">
-                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                      {/* Keyed on the active twin so switching tabs remounts these fields and
+                          each twin's checkboxes bind to their own form values. */}
+                      <div key={`gross-${activeTwinIndex}`} className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                           <FormField control={form.control} name={`findings.${activeTwinIndex}.grossFindings.marginalCordInsertion`} render={({ field }) => (
                              <FormItem className="p-0 rounded-md border">
                               <FormLabel className="flex flex-row items-start space-x-3 space-y-0 p-3 font-normal cursor-pointer h-full">
@@ -816,6 +993,16 @@ export function PlacentaPathfinder() {
                               <FormLabel className="flex flex-row items-start space-x-3 space-y-0 p-3 font-normal cursor-pointer h-full">
                                 <FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl>
                                 <span className="flex-1">Long cord</span>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Button type="button" variant="ghost" size="icon" className="h-5 w-5 p-0 shrink-0" onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}>
+                                      <Info className="h-3.5 w-3.5 text-muted-foreground" />
+                                    </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p className="max-w-xs">Umbilical cord length &gt;70 cm. Associated with fetal vascular malperfusion and adverse perinatal outcomes.</p>
+                                  </TooltipContent>
+                                </Tooltip>
                               </FormLabel>
                             </FormItem>
                           )} />
@@ -824,6 +1011,16 @@ export function PlacentaPathfinder() {
                               <FormLabel className="flex flex-row items-start space-x-3 space-y-0 p-3 font-normal cursor-pointer h-full">
                                 <FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl>
                                 <span className="flex-1">Hypercoiled cord</span>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Button type="button" variant="ghost" size="icon" className="h-5 w-5 p-0 shrink-0" onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}>
+                                      <Info className="h-3.5 w-3.5 text-muted-foreground" />
+                                    </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p className="max-w-xs">Umbilical cord coiling index &gt;3 coils per 10 cm. Associated with fetal vascular malperfusion and adverse perinatal outcomes.</p>
+                                  </TooltipContent>
+                                </Tooltip>
                               </FormLabel>
                             </FormItem>
                           )} />
@@ -927,7 +1124,7 @@ export function PlacentaPathfinder() {
 
 
                                 return (
-                                <div key={compartment.id}>
+                                <div key={`${compartment.id}-${activeTwinIndex}`}>
                                   <h3 className="text-lg font-semibold flex items-center gap-3 mb-4 border-b pb-2">
                                     <compartment.icon />
                                     {compartment.name}
@@ -1341,7 +1538,7 @@ export function PlacentaPathfinder() {
                       </div>
                     </AccordionTrigger>
                     <AccordionContent className="p-4 pt-0">
-                        <div className="pt-2 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+                        <div key={`infections-${activeTwinIndex}`} className="pt-2 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
                             {specificInfections.alterations.map((infection) => (
                                 <FormField
                                     key={infection.id}
@@ -1393,6 +1590,7 @@ export function PlacentaPathfinder() {
                   </AccordionTrigger>
                   <AccordionContent className="p-4 pt-0">
                     <FormField
+                      key={`additional-${activeTwinIndex}`}
                       control={form.control}
                       name={`findings.${activeTwinIndex}.additionalMicroscopicFindings`}
                       render={({ field }) => (
