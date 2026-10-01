@@ -87,6 +87,7 @@ export function PlacentaPathfinder() {
   const [percentiles, setPercentiles] = useState<[string | null, string | null]>([null, null]);
   const [activeTwinIndex, setActiveTwinIndex] = useState(0);
   const [weightReference, setWeightReference] = useState<WeightReference>('pinar');
+  const [openAccordions, setOpenAccordions] = useState<string[]>(['clinical-context', 'microscopic-findings']);
   const [isCopied, setIsCopied] = useState(false);
   const [isMicroscopicCopied, setIsMicroscopicCopied] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -232,6 +233,16 @@ export function PlacentaPathfinder() {
   // calculated stage so users can catch mismatches without being prevented from choosing.
   const mirStageMismatch = !!activeFinding?.mirStage && activeFinding.mirStage !== derivedMirStage;
   const firStageMismatch = !!derivedFirStage && !!activeFinding?.firStage && activeFinding.firStage !== derivedFirStage;
+
+  // Auto-open the Twin Findings section when Twin Pregnancy is selected so the
+  // combined weight (and chorionicity) are immediately visible.
+  useEffect(() => {
+    if (isTwin) {
+      setOpenAccordions((prev) =>
+        prev.includes('twin-findings') ? prev : [...prev, 'twin-findings']
+      );
+    }
+  }, [isTwin]);
 
   // Load the persisted weight reference preference (survives browser close via localStorage).
   useEffect(() => {
@@ -625,7 +636,7 @@ export function PlacentaPathfinder() {
               </CardFooter>
             </Card>
 
-            <Accordion type="multiple" className="w-full space-y-6" defaultValue={['clinical-context', 'microscopic-findings']}>
+            <Accordion type="multiple" className="w-full space-y-6" value={openAccordions} onValueChange={setOpenAccordions}>
               {isTwin && (
                  <Card className="shadow-lg animate-in fade-in-0 zoom-in-95 duration-500 overflow-hidden">
                     <AccordionItem value="twin-findings" className="border-none">
