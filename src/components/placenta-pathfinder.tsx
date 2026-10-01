@@ -418,12 +418,29 @@ export function PlacentaPathfinder() {
     <TooltipProvider>
       <div className="container mx-auto max-w-5xl p-4">
         <header className="text-center mb-6">
-          <h1 className="font-headline text-4xl md:text-5xl text-primary-foreground/90">
-            Placenta Reporting
-          </h1>
+          <div className="flex items-center justify-center gap-3">
+            <Image
+              src="https://www.spponline.org/assets/site/logo.png"
+              alt="Society for Pediatric Pathology logo"
+              width={56}
+              height={56}
+              className="h-12 w-12 md:h-14 md:w-14 object-contain"
+            />
+            <h1 className="font-headline font-bold text-4xl md:text-5xl text-primary-foreground/90">
+              The Placenta Reporter
+            </h1>
+          </div>
           <p className="text-muted-foreground mt-2 text-lg">
-            A tool for the general pathologist
+            Brought to you by the Society for Pediatric Pathology and its Perinatal Pathology committee
           </p>
+          <a
+            href="https://www.spponline.org"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-block mt-2 text-primary-foreground underline underline-offset-4 hover:text-primary"
+          >
+            www.spponline.org
+          </a>
           <div className="flex justify-center gap-4 mt-6">
             <HowToModal />
             <AtlasModal />

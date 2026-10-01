@@ -3,7 +3,7 @@ import { Toaster } from '@/components/ui/toaster';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'Placenta Reporting - A tool for the general pathologist',
+  title: 'The Placenta Reporter',
   description: 'An AI-powered tool for placental pathology reporting.',
 };
 
