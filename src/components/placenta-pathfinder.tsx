@@ -60,6 +60,7 @@ import { atlasData } from "@/lib/atlas";
 import { formSchema, type FormValues, type Findings } from "@/lib/schema";
 import { generateMicroscopicDescription, generateFinalDiagnosis } from "@/lib/report-generator";
 import { PlaceHolderImages, type ImagePlaceholder } from "@/lib/placeholder-images";
+import { withBasePath } from "@/lib/base-path";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "./ui/carousel";
 import { WatermarkOverlay, imageCopyGuards } from "./watermark";
 import {
@@ -1251,7 +1252,7 @@ export function PlacentaPathfinder() {
                                                                             <CarouselItem key={index}>
                                                                                 <div className="relative rounded-md overflow-hidden border">
                                                                                 <Image
-                                                                                    src={image.imageUrl}
+                                                                                    src={withBasePath(image.imageUrl)}
                                                                                     alt={image.description}
                                                                                     width={300}
                                                                                     height={225}

@@ -36,6 +36,7 @@ import {
 import Image from "next/image";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import type { AtlasChapter, AtlasImage } from "@/lib/atlas-types";
+import { basePath, withBasePath } from "@/lib/base-path";
 import { WatermarkOverlay, imageCopyGuards } from "./watermark";
 
 export function AtlasModal() {
@@ -53,7 +54,7 @@ export function AtlasModal() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch("/api/atlas");
+      const res = await fetch(`${basePath}/api/atlas`);
       if (!res.ok) throw new Error(`Failed to load atlas (${res.status})`);
       const data = await res.json();
       setChapters(data.chapters ?? []);
@@ -279,7 +280,7 @@ export function AtlasModal() {
                               onClick={() => handleOpenImage(image, chapter.images)}
                             >
                               <Image
-                                src={image.imageUrl}
+                                src={withBasePath(image.imageUrl)}
                                 alt={image.description}
                                 fill
                                 className="object-cover"
@@ -391,7 +392,7 @@ export function AtlasModal() {
                   }}
                 >
                   <Image
-                    src={selectedImage.imageUrl}
+                    src={withBasePath(selectedImage.imageUrl)}
                     alt={selectedImage.description}
                     fill
                     className="object-contain"

@@ -1,10 +1,12 @@
-// Server-only module. Builds the Picture Atlas catalog by scanning the folder
+// Build-time module. Builds the Picture Atlas catalog by scanning the folder
 // structure of `public/images/atlas/` and merging in curated metadata from the
 // `placeholder-images.json` manifest (when a matching entry exists).
 //
 // Every subfolder becomes a chapter, and every image file inside it is listed
 // automatically. To add a new chapter a developer only needs to create a new
-// folder and drop image files into it — no code changes required.
+// folder and drop image files into it — no code changes required. The catalog is
+// exported as a static JSON file at build time, so the site must be rebuilt
+// (i.e. the change pushed) before new images appear.
 
 import fs from "fs/promises";
 import path from "path";

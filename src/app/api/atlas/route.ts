@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
 import { getAtlasChapters } from "@/lib/atlas-catalog";
 
-// Always read fresh from disk so newly added folders/images show up immediately.
-export const dynamic = "force-dynamic";
+// Resolved at build time into a plain JSON file so the catalog works on static
+// hosting (GitHub Pages cannot run a server-side route handler).
+export const dynamic = "force-static";
 
 export async function GET() {
   const chapters = await getAtlasChapters();
